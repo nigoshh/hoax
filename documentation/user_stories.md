@@ -10,5 +10,5 @@
 - as an admin, I can assign admins to manage housing complexes
 - as an admin, I can specify what common resources can be booked, and at what times they can be booked
 - as an admin, I can create/delete a user account, for example when a tenant moves in/out
-- as a tenant, I can compose invoices for tenants
+- as an admin, I can compose invoices for tenants
 - as an admin, I can see a summary of resource use and payments
