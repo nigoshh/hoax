@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<form method="POST" action="{{ url_for('users_update', user_id=user_id) }}">
+  new username:<br>
+  <input type="text" name="username"/><br>
+  new full name:<br>
+  <input type="text" name="full_name"/><br>
+  old password:<br>
+  <input type="password" name="old_pw"/><br>
+  new password:<br>
+  <input type="password" name="password"/><br>
+  repeat new password:<br>
+  <input type="password" name="repeat_pw"/><br>
+  <input type="submit" value="update"/>
+</form>
+{% endblock %}
