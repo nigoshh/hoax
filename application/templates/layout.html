@@ -6,10 +6,21 @@
   </head>
 
   <body>
+    {% if current_user.is_authenticated %}
+    <p>
+	    {{ current_user.username }} logged in<br><a href="{{ url_for('auth_logout') }}">log out</a>
+    </p>
+    {% else %}
+    <a href="{{ url_for('auth_login') }}">log in</a>
+    {% endif %}
+
     <ul>
-    	<li><a href="{{ url_for('users_list') }}">list users</a></li>
-    	<li><a href="{{ url_for('users_form_create') }}">create a new user</a></li>
+      <li><a href="{{ url_for('communities_list') }}">list communities</a></li>
+      <li><a href="{{ url_for('communities_form_create') }}">create a new community</a></li>
+    	<li><a href="{{ url_for('accounts_list') }}">list accounts</a></li>
+    	<li><a href="{{ url_for('accounts_form_create') }}">create a new account</a></li>
     </ul>
+
     {% block body %}
     {% endblock %}
   </body>

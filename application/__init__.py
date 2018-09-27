@@ -20,8 +20,29 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 from application import views
-from application.users import models
-from application.users import views
+
+from application.auth import views
+
+from application.communities import models
+from application.communities import views
+
+from application.accounts import models
+from application.accounts import views
+
+from application.accounts.models import Account
+from os import urandom
+app.config["SECRET_KEY"] = urandom(32)
+
+from flask_login import LoginManager
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+login_manager.login_view = "auth_login"
+login_manager.login_message = "please login to use this functionality"
+
+@login_manager.user_loader
+def load_account(account_id):
+    return Account.query.get(account_id)
 
 try:
     db.create_all()

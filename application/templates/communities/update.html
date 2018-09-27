@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<form method="POST" action="{{ url_for('communities_update', community_id=community.id) }}">
+  <table>
+    <tr>
+      <td>
+        {{ form.address.label }}
+      </td>
+      <td>
+        {{ form.address }}
+      </td>
+      <td>
+        {{ community.address }}
+      </td>
+      <td>
+        <ul>
+          {% for e in form.address.errors %}
+          <li>{{ e }}</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    <tr>
+    	<td colspan="4">
+    	  {{ form.submit }}
+    	</td>
+    </tr>
+  </table>
+</form>
+<a href="{{ url_for('communities_delete', community_id=community.id) }}">delete community</a>
+{% endblock %}

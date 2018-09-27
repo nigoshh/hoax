@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block body %}
+  <table>
+    <tr>
+      <th>username</th>
+      <th>forename</th>
+      <th>surname</th>
+      <th>apartment</th>
+      <th>community</th>
+    </tr>
+    {% for a in accounts %}
+    <tr>
+      <td>{{ a.username }}</td>
+      <td>{{ a.forename }}</td>
+      <td>{{ a.surname }}</td>
+      <td>{{ a.apartment }}</td>
+      <td>{{ a.community.address }}</td>
+      <td>
+        <a href="{{ url_for('accounts_update', account_id=a.id) }}">update</a>
+      </td>
+      <td>
+        <a href="{{ url_for('accounts_delete', account_id=a.id) }}">delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
