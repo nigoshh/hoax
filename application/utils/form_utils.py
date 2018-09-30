@@ -13,7 +13,7 @@ def length_if_present(min=-1, max=-1):
 
 
 def clean_pw(form):
-    for field in ("old_pw", "password", "repeat_pw"):
+    for field in ("current_pw", "password", "repeat_pw"):
         try:
             setattr(form, field + "data", None)
         except AttributeError:

@@ -1,20 +1,35 @@
 {% extends "layout.html" %}
 
 {% block body %}
-  <table>
+<table class="table table-striped table-hover">
+  <caption>list of communities</caption>
+  <thead class="thead-dark">
     <tr>
-      <th>address</th>
+      <th scope="col">#</th>
+      <th scope="col">address</th>
+      <th scope="col">accounts</th>
+      <th scope="col">details</th>
+      <th scope="col">edit</th>
+      <th scope="col">delete</th>
     </tr>
+  </thead>
+  <tbody>
     {% for c in communities %}
     <tr>
+      <th scope="row">{{ loop.index }}</th>
       <td>{{ c.address }}</td>
+      <td>{{ c.accounts|length }}</td>
       <td>
-        <a href="{{ url_for('communities_update', community_id=c.id) }}">update</a>
+        <a href="{{ url_for('communities_single', community_id=c.id) }}">details</a>
       </td>
       <td>
-        <a href="{{ url_for('communities_delete', community_id=c.id) }}">delete</a>
+        <a href="{{ url_for('communities_form_update', community_id=c.id) }}">edit</a>
+      </td>
+      <td>
+        <a href="{{ url_for('communities_delete_ask', community_id=c.id) }}">delete</a>
       </td>
     </tr>
     {% endfor %}
-  </table>
+  </tbody>
+</table>
 {% endblock %}

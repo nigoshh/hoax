@@ -23,13 +23,13 @@ def auth_login():
     if not a:
         clean_pw(form)
         return render_template("auth/loginform.html", form=form,
-                               error="no such username or password")
+                               error="No such username or password.")
 
     pw_match = argon2.verify(form.password.data, a.pw_hash)
     clean_pw(form)
     if not pw_match:
         return render_template("auth/loginform.html", form=form,
-                               error="wrong password")
+                               error="Wrong password.")
 
     login_user(a)
     return redirect(url_for("index"))

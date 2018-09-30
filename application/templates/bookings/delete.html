@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<form class="form-inline" method="POST" action="{{ url_for('bookings_delete', booking_id=booking.id) }}">
+  <p class="text-center">are you sure you want to delete this booking made by account {{ booking.account.username }} for resource {{ booking.resource.address }} {{ booking.resource.type }} {{ booking.resource.number }} from {{ booking.start }} to {{ booking.end }}? all the information related to this booking will be gone, forever (including any related invoice)</p>
+  <div class="row">
+    <div class="col-auto mr-auto">
+      <button type="submit" class="btn btn-primary mb-2">delete booking</button>
+    </div>
+    <div class="col-auto">
+      <a class="btn btn-primary" href="{{ url_for('bookings_single', booking_id=booking.id) }}" role="button">cancel</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

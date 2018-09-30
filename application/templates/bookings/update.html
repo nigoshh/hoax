@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% from "forms.html" import form_row %}
+
+{% block body %}
+<form method="POST" action="{{ url_for('bookings_update', booking_id=booking.id) }}" novalidate>
+  {{ form_row([(form.account, ""), (form.resource, "")]) }}
+  {{ form_row([(form.start, booking.start), (form.end, booking.end)]) }}
+  <div class="row">
+    <div class="col-auto mr-auto">
+      {{ form.submit(class_="btn btn-primary") }}
+    </div>
+    <div class="col-auto">
+      <a href="{{ url_for('bookings_delete', booking_id=booking.id) }}">delete booking</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

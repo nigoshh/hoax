@@ -1,44 +1,11 @@
 {% extends "layout.html" %}
+{% from "forms.html" import form_row %}
 
 {% block body %}
 {{ error }}
 <form method="POST" action="{{ url_for('auth_login') }}">
-  <table>
-    <tr>
-      <td>
-	      {{ form.username.label }}
-      </td>
-      <td>
-	      {{ form.username }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.username.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-	      {{ form.password.label }}
-      </td>
-      <td>
-	      {{ form.password }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.password.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2">
-	      <input type="submit" value="Login"/>
-      </td>
-    </tr>
-  </table>
+  {{ form_row([(form.username, ""), (form.password, "")]) }}
+
+  {{ form.submit(class_="btn btn-primary") }}
 </form>
 {% endblock %}

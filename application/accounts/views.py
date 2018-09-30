@@ -6,19 +6,12 @@ from flask_login import login_required
 from passlib.hash import argon2
 from application.accounts.models import Account
 from application.accounts.forms import AccountFormCreate, AccountFormUpdate
-from application.communities.models import Community
 from application.utils.form_utils import clean_pw
-
-
-def update_community_choices(form):
-    form.community_id.choices = [(c.id, c.address)
-                                 for c in Community.query.order_by("address")]
 
 
 @app.route("/accounts/new/")
 def accounts_form_create():
     form = AccountFormCreate()
-    update_community_choices(form)
     return render_template("accounts/new.html", form=form)
 
 
@@ -31,7 +24,6 @@ def accounts_list():
 @app.route("/accounts/", methods=["POST"])
 def accounts_create():
     form = AccountFormCreate(request.form)
-    update_community_choices(form)
 
     if not form.validate():
         clean_pw(form)
@@ -40,27 +32,35 @@ def accounts_create():
     pw_hash = argon2.hash(form.password.data)
     clean_pw(form)
 
-    a = Account(form.community_id.data, form.username.data, pw_hash,
-                form.apartment.data, form.forename.data, form.surname.data)
+    a = Account(form.community.data.id, form.username.data, pw_hash,
+                form.apartment.data, form.forename.data, form.surname.data,
+                form.email.data, form.phone.data)
 
     try:
         db.session().add(a)
         db.session().commit()
     except exc.SQLAlchemyError as e:
-        msg = "this username is already taken, please choose another one"
+        db.session().rollback()
+        msg = "This username is already taken, please choose another one."
         form.username.errors.append(msg)
         return render_template("accounts/new.html", form=form)
 
-    return redirect(url_for("accounts_list"))
+    return redirect(url_for("accounts_single", account_id=a.id))
 
 
 @app.route("/accounts/<account_id>/", methods=["GET"])
 @login_required
+def accounts_single(account_id):
+    a = Account.query.get(account_id)
+    return render_template("accounts/single.html", account=a)
+
+
+@app.route("/accounts/<account_id>/update", methods=["GET"])
+@login_required
 def accounts_form_update(account_id):
     a = Account.query.get(account_id)
     form = AccountFormUpdate()
-    update_community_choices(form)
-    form.community_id.data = a.community_id
+    form.community.data = a.community
     return render_template("accounts/update.html", account=a, form=form)
 
 
@@ -70,15 +70,14 @@ def accounts_update(account_id):
     a = Account.query.get(account_id)
     old_a = copy.deepcopy(a)
     form = AccountFormUpdate(request.form)
-    update_community_choices(form)
 
     if not form.validate():
         clean_pw(form)
         return render_template("accounts/update.html", account=a, form=form)
 
-    if not argon2.verify(form.old_pw.data, a.pw_hash):
+    if not argon2.verify(form.current_pw.data, a.pw_hash):
         clean_pw(form)
-        form.old_pw.errors.append("wrong old password")
+        form.current_pw.errors.append("Wrong current password.")
         return render_template("accounts/update.html", account=a, form=form)
 
     if form.password.data:
@@ -93,17 +92,26 @@ def accounts_update(account_id):
     try:
         db.session().commit()
     except exc.SQLAlchemyError as e:
-        msg = "this username is already taken, please choose another one"
+        db.session().rollback()
+        msg = "This username is already taken, please choose another one."
         form.username.errors.append(msg)
         return render_template("accounts/update.html",
                                account=old_a, form=form)
 
-    return redirect(url_for("accounts_list"))
+    return redirect(url_for("accounts_single", account_id=a.id))
 
 
 @app.route("/accounts/<account_id>/delete", methods=["GET"])
 @login_required
+def accounts_delete_ask(account_id):
+    a = Account.query.get(account_id)
+    return render_template("accounts/delete.html", account=a)
+
+
+@app.route("/accounts/<account_id>/delete", methods=["POST"])
+@login_required
 def accounts_delete(account_id):
-    Account.query.filter_by(id=account_id).delete()
+    a = Account.query.get(account_id)
+    db.session.delete(a)
     db.session.commit()
     return redirect(url_for("accounts_list"))

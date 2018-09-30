@@ -23,11 +23,20 @@ from application import views
 
 from application.auth import views
 
+from application.accounts import models
+from application.accounts import views
+
+from application.bookings import models
+from application.bookings import views
+
 from application.communities import models
 from application.communities import views
 
-from application.accounts import models
-from application.accounts import views
+from application.invoices import models
+# from application.invoices import views
+
+from application.resources import models
+from application.resources import views
 
 from application.accounts.models import Account
 from os import urandom

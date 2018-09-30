@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<table class="table table-striped table-dark table-hover">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">attribute</th>
+      <th scope="col">value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">address</th>
+      <td>{{ community.address }}</td>
+    </tr>
+    <tr>
+      <th scope="row">accounts</th>
+      <td>
+        {% for a in community.accounts %}
+        {{ a.username }}<br>
+        {% endfor %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">resources</th>
+      <td>
+        {% for r in community.resources %}
+        {{ r.address }} {{ r.type }} {{ r.number }}<br>
+        {% endfor %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="row">
+  <div class="col-auto mr-auto">
+    <a href="{{ url_for('communities_form_update', community_id=community.id) }}">edit community</a>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('communities_delete_ask', community_id=community.id) }}">delete community</a>
+  </div>
+</div>
+{% endblock %}

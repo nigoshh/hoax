@@ -1,178 +1,19 @@
 {% extends "layout.html" %}
+{% from "forms.html" import form_row %}
 
 {% block body %}
-<form method="POST" action="{{ url_for('accounts_update', account_id=account.id) }}">
-  <table>
-    <tr>
-      <td>
-        {{ form.username.label }}
-      </td>
-      <td>
-        {{ form.username }}
-      </td>
-      <td>
-        {{ account.username }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.username.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.community_id.label }}
-      </td>
-      <td>
-        {{ form.community_id }}
-      </td>
-      <td></td>
-      <td>
-        <ul>
-          {% for e in form.community_id.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.old_pw.label }}
-      </td>
-      <td>
-        {{ form.old_pw }}
-      </td>
-      <td></td>
-      <td>
-        <ul>
-          {% for e in form.old_pw.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.password.label }}
-      </td>
-      <td>
-        {{ form.password }}
-      </td>
-      <td></td>
-      <td>
-        <ul>
-          {% for e in form.password.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.repeat_pw.label }}
-      </td>
-      <td>
-        {{ form.repeat_pw }}
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.apartment.label }}
-      </td>
-      <td>
-        {{ form.apartment }}
-      </td>
-      <td>
-        {{ account.apartment }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.apartment.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.forename.label }}
-      </td>
-      <td>
-        {{ form.forename }}
-      </td>
-      <td>
-        {{ account.forename }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.forename.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.surname.label }}
-      </td>
-      <td>
-        {{ form.surname }}
-      </td>
-      <td>
-        {{ account.surname }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.surname.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.email.label }}
-      </td>
-      <td>
-        {{ form.email }}
-      </td>
-      <td>
-        {{ account.email }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.email.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{ form.phone.label }}
-      </td>
-      <td>
-        {{ form.phone }}
-      </td>
-      <td>
-        {{ account.phone }}
-      </td>
-      <td>
-        <ul>
-          {% for e in form.phone.errors %}
-          <li>{{ e }}</li>
-          {% endfor %}
-        </ul>
-      </td>
-    </tr>
-    <tr>
-    	<td colspan="4">
-    	  {{ form.submit }}
-    	</td>
-    </tr>
-  </table>
+<form method="POST" action="{{ url_for('accounts_update', account_id=account.id) }}" novalidate>
+  {{ form_row([(form.username, account.username), (form.community, ""), (form.apartment, account.apartment)]) }}
+  {{ form_row([(form.current_pw, ""), (form.password, ""), (form.repeat_pw, "")]) }}
+  {{ form_row([(form.forename, account.forename), (form.surname, account.surname)]) }}
+  {{ form_row([(form.email, account.email), (form.phone, account.phone)]) }}
+  <div class="row">
+    <div class="col-auto mr-auto">
+      {{ form.submit(class_="btn btn-primary") }}
+    </div>
+    <div class="col-auto">
+      <a href="{{ url_for('accounts_delete', account_id=account.id) }}">delete account</a>
+    </div>
+  </div>
 </form>
-<a href="{{ url_for('accounts_delete', account_id=account.id) }}">delete account</a>
 {% endblock %}

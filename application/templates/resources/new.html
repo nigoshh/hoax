@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% from "forms.html" import form_row %}
+
+{% block body %}
+<form method="POST" action="{{ url_for('resources_create') }}" novalidate>
+  {{ form_row([(form.address, ""), (form.communities, "")]) }}
+  {{ form_row([(form.type, ""), (form.number, ""), (form.price, "")]) }}
+
+  {{ form.submit(class_="btn btn-primary") }}
+</form>
+{% endblock %}

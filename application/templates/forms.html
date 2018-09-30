@@ -1,0 +1,21 @@
+{% macro form_row(fields) -%}
+<div class="form-row">
+{% for f, placeholder in fields %}
+  <div class="col-md-{{ 12 // (fields|length) }} mb-3">
+    {{ f.label }}
+    {% if f.errors %}
+      {{ f(class_="form-control is-invalid") }}
+      <div class="invalid-feedback">
+        {% for e in f.errors %}
+        <div>{{ e }}</div>
+        {% endfor %}
+      </div>
+    {% elif placeholder %}
+      {{ f(class_="form-control", placeholder=placeholder) }}
+    {% else %}
+      {{ f(class_="form-control") }}
+    {% endif %}
+  </div>
+{% endfor %}
+</div>
+{%- endmacro %}

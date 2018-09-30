@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% from "forms.html" import form_row %}
+
+{% block body %}
+<form method="POST" action="{{ url_for('resources_update', resource_id=resource.id) }}" novalidate>
+  {{ form_row([(form.address, resource.address), (form.communities, "")]) }}
+  {{ form_row([(form.type, resource.type), (form.number, resource.number), (form.price, resource.price)]) }}
+  <div class="row">
+    <div class="col-auto mr-auto">
+      {{ form.submit(class_="btn btn-primary") }}
+    </div>
+    <div class="col-auto">
+      <a href="{{ url_for('resources_delete_ask', resource_id=resource.id) }}">delete resource</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

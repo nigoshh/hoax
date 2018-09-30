@@ -1,28 +1,41 @@
 {% extends "layout.html" %}
 
 {% block body %}
-  <table>
+<table class="table table-striped table-hover">
+  <caption>list of accounts</caption>
+  <thead class="thead-dark">
     <tr>
-      <th>username</th>
-      <th>forename</th>
-      <th>surname</th>
-      <th>apartment</th>
-      <th>community</th>
+      <th scope="col">#</th>
+      <th scope="col">username</th>
+      <th scope="col">forename</th>
+      <th scope="col">surname</th>
+      <th scope="col">apartment</th>
+      <th scope="col">community</th>
+      <th scope="col">details</th>
+      <th scope="col">edit</th>
+      <th scope="col">delete</th>
     </tr>
+  </thead>
+  <tbody>
     {% for a in accounts %}
     <tr>
+      <th scope="row">{{ loop.index }}</th>
       <td>{{ a.username }}</td>
       <td>{{ a.forename }}</td>
       <td>{{ a.surname }}</td>
       <td>{{ a.apartment }}</td>
       <td>{{ a.community.address }}</td>
       <td>
-        <a href="{{ url_for('accounts_update', account_id=a.id) }}">update</a>
+        <a href="{{ url_for('accounts_single', account_id=a.id) }}">details</a>
       </td>
       <td>
-        <a href="{{ url_for('accounts_delete', account_id=a.id) }}">delete</a>
+        <a href="{{ url_for('accounts_form_update', account_id=a.id) }}">edit</a>
+      </td>
+      <td>
+        <a href="{{ url_for('accounts_delete_ask', account_id=a.id) }}">delete</a>
       </td>
     </tr>
     {% endfor %}
-  </table>
+  </tbody>
+</table>
 {% endblock %}

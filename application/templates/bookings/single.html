@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<table class="table table-striped table-dark table-hover">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">attribute</th>
+      <th scope="col">value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">account</th>
+      <td>{{ booking.account.username }}</td>
+    </tr>
+    <tr>
+      <th scope="row">resource</th>
+      <td>{{ booking.resource.address }} {{ booking.resource.type }} {{ booking.resource.number }}</td>
+    </tr>
+    <tr>
+      <th scope="row">start</th>
+      <td>{{ booking.start }}</td>
+    </tr>
+    <tr>
+      <th scope="row">end</th>
+      <td>{{ booking.end }}</td>
+    </tr>
+  </tbody>
+</table>
+<div class="row">
+  <div class="col-auto mr-auto">
+    <a href="{{ url_for('bookings_form_update', booking_id=booking.id) }}">edit booking</a>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('bookings_delete_ask', booking_id=booking.id) }}">delete booking</a>
+  </div>
+</div>
+{% endblock %}
