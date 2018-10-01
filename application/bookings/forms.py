@@ -15,8 +15,8 @@ class BookingFormCreate(FlaskForm):
                                query_factory=Account.get_allowed_accounts)
     resource = QuerySelectField("resource", [rq()], get_label=resource_label,
                                 query_factory=Resource.get_allowed_resources)
-    start = DateTimeField("start", [rq()])
-    end = DateTimeField("end", [rq()])
+    start_time = DateTimeField("start_time", [rq()])
+    end_time = DateTimeField("end_time", [rq()])
     submit = SubmitField("create booking")
 
     class Meta:
@@ -28,8 +28,8 @@ class BookingFormUpdate(FlaskForm):
                                query_factory=Account.get_allowed_accounts)
     resource = QuerySelectField("resource", get_label=resource_label,
                                 query_factory=Resource.get_allowed_resources)
-    start = DateTimeField("start", [opt()])
-    end = DateTimeField("end", [opt()])
+    start_time = DateTimeField("start_time", [opt()])
+    end_time = DateTimeField("end_time", [opt()])
     submit = SubmitField("update booking")
 
     class Meta:

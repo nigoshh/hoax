@@ -1,4 +1,4 @@
-from sqlalchemy import CheckConstraint, not_, or_
+from sqlalchemy import CheckConstraint, text
 from application import db
 from application.models import Base
 
@@ -8,22 +8,28 @@ class Booking(Base):
                            db.ForeignKey("account.id"), nullable=False)
     resource_id = db.Column(db.Integer,
                             db.ForeignKey("resource.id"), nullable=False)
-    start = db.Column(db.DateTime, nullable=False)
-    end = db.Column(db.DateTime, nullable=False)
-    __table_args__ = (CheckConstraint("start < end", name="time_direction"), )
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
+    __table_args__ = (CheckConstraint("start_time < end_time",
+                                      name="time_direction"), )
 
-    def __init__(self, account_id, resource_id, start, end):
+    def __init__(self, account_id, resource_id, start_time, end_time):
         self.account_id = account_id
         self.resource_id = resource_id
-        self.start = start
-        self.end = end
+        self.start_time = start_time
+        self.end_time = end_time
 
     @staticmethod
     def is_free_time_slot(b):
-        res = (db.session.query(Booking)
-               .filter(Booking.resource_id == b.resource_id,
-                       Booking.id != b.id,
-                       not_(or_(Booking.end <= b.start,
-                                Booking.start >= b.end)))
-               .first())
-        return res is None
+        query = ("SELECT id FROM booking "
+                 "WHERE resource_id = :resource_id "
+                 "AND end_time > :start_time "
+                 "AND start_time < :end_time")
+        stmt = (text(query + " AND id <> :id"
+                     ).params(id=b.id, resource_id=b.resource_id,
+                              start_time=b.start_time, end_time=b.end_time)
+                if b.id else
+                text(query
+                     ).params(resource_id=b.resource_id,
+                              start_time=b.start_time, end_time=b.end_time))
+        return not db.engine.execute(stmt).fetchone()
