@@ -11,7 +11,9 @@ def msg_free_rts_1(resource):
             % (resource.address, resource.type, resource.number))
 
 
-msg_free_rts_2 = "Please check bookings' list to find a free time slot."
+msg_free_rts_2 = "Please check the bookings' list to find a free time slot."
+msg_end = "Ending time must be after starting time."
+msg_start = "Starting time must be before ending time."
 
 
 @app.route("/bookings/new/")
@@ -33,6 +35,11 @@ def bookings_create():
     form = BookingFormCreate(request.form)
 
     if not form.validate():
+        return render_template("bookings/new.html", form=form)
+
+    if form.start.data >= form.end.data:
+        form.start.errors.append(msg_start)
+        form.end.errors.append(msg_end)
         return render_template("bookings/new.html", form=form)
 
     b = Booking(form.account.data.id, form.resource.data.id,
@@ -79,6 +86,14 @@ def bookings_update(booking_id):
     for field in form:
         if field.data:
             setattr(b, field.name, field.data)
+
+    if b.start >= b.end:
+        if form.start.data:
+            form.start.errors.append(msg_start)
+        elif form.end.data:
+            form.end.errors.append(msg_end)
+        return render_template("bookings/update.html",
+                               booking=old_b, form=form)
 
     if not Booking.is_free_time_slot(b):
         for field in [form.resource, form.start, form.end]:

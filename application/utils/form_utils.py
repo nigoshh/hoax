@@ -1,6 +1,14 @@
 from wtforms import ValidationError
 
 
+def clean_pw(form):
+    for field in ("current_pw", "password", "repeat_pw"):
+        try:
+            setattr(form, field + "data", None)
+        except AttributeError:
+            pass
+
+
 def length_if_present(min=-1, max=-1):
     def ln_if_p(form, field):
         msg = ("%s must be between %d and %d characters long"
@@ -12,9 +20,5 @@ def length_if_present(min=-1, max=-1):
     return ln_if_p
 
 
-def clean_pw(form):
-    for field in ("current_pw", "password", "repeat_pw"):
-        try:
-            setattr(form, field + "data", None)
-        except AttributeError:
-            pass
+def resource_label(r):
+    return "%s %s %s" % (r.address, r.type, r.number)

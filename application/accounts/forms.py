@@ -5,10 +5,11 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from application.utils import form_utils
 from application.communities.models import Community
 
-ln = validators.Length
-rq = validators.InputRequired
+em = validators.Email
 eq = validators.EqualTo
+ln = validators.Length
 ln_if_p = form_utils.length_if_present
+rq = validators.InputRequired
 
 
 def all_c():
@@ -25,7 +26,7 @@ class AccountFormCreate(FlaskForm):
     apartment = StringField("apartment", [rq(), ln(max=13)])
     forename = StringField("forename", [rq(), ln(max=70)])
     surname = StringField("surname", [rq(), ln(max=70)])
-    email = StringField("email address", [rq(), ln(max=65)])
+    email = StringField("email address", [rq(), em(), ln(max=65)])
     phone = StringField("phone", [rq(), ln(max=65)])
     submit = SubmitField("create account")
 
@@ -44,7 +45,7 @@ class AccountFormUpdate(FlaskForm):
     apartment = StringField("apartment", [ln(max=13)])
     forename = StringField("forename", [ln(max=70)])
     surname = StringField("surname", [ln(max=70)])
-    email = StringField("email address", [ln(max=65)])
+    email = StringField("email address", [em(), ln(max=65)])
     phone = StringField("phone", [ln(max=65)])
     submit = SubmitField("update account")
 

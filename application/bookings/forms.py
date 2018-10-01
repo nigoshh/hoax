@@ -4,12 +4,10 @@ from wtforms.fields.html5 import DateTimeField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from application.accounts.models import Account
 from application.resources.models import Resource
+from application.utils.form_utils import resource_label
 
+opt = validators.Optional
 rq = validators.InputRequired
-
-
-def resource_label(r):
-    return "%s %s %s" % (r.address, r.type, r.number)
 
 
 class BookingFormCreate(FlaskForm):
@@ -30,8 +28,8 @@ class BookingFormUpdate(FlaskForm):
                                query_factory=Account.get_allowed_accounts)
     resource = QuerySelectField("resource", get_label=resource_label,
                                 query_factory=Resource.get_allowed_resources)
-    start = DateTimeField("start")
-    end = DateTimeField("end")
+    start = DateTimeField("start", [opt()])
+    end = DateTimeField("end", [opt()])
     submit = SubmitField("update booking")
 
     class Meta:
