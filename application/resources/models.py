@@ -1,3 +1,4 @@
+from decimal import Decimal, ROUND_DOWN
 from flask_login import current_user
 from sqlalchemy.sql import text
 from application import db
@@ -9,9 +10,11 @@ class Resource(Base):
     address = db.Column(db.String(144), nullable=False)
     type = db.Column(db.String(144), nullable=False)
     number = db.Column(db.Integer, nullable=False)
-    price = db.Column(db.Integer, nullable=False)
-    bookings = db.relationship('Booking', lazy=True,
-                               backref=db.backref('resource', lazy=False),
+    price = db.Column(db.Numeric,
+                      db.CheckConstraint("price >= 0 AND price <= 1000000"),
+                      nullable=False)
+    bookings = db.relationship("Booking", lazy=True,
+                               backref=db.backref("resource", lazy=False),
                                cascade="all, delete-orphan")
     __table_args__ = (UniqueConstraint("address", "type", "number",
                       name="unique_atn"), )
@@ -23,8 +26,17 @@ class Resource(Base):
         self.price = price
         self.communities = communities
 
+    def __str__(self):
+        return "%s, %s %d" % (self.address, self.type, self.number)
+
+    def price_rnd(self):
+        return self.price.quantize(Decimal('.01'), rounding=ROUND_DOWN)
+
+    def price_str(self):
+        return "%.2f €" % self.price
+
     @staticmethod
-    def get_allowed_resources():
+    def get_allowed():
         if not current_user.is_authenticated:
             return []
         stmt = text("SELECT * FROM resource WHERE id IN "

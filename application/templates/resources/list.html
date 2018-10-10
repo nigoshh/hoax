@@ -9,7 +9,7 @@
       <th scope="col">address</th>
       <th scope="col">type</th>
       <th scope="col">number</th>
-      <th scope="col">price</th>
+      <th scope="col">price per hour</th>
       <th scope="col">details</th>
       <th scope="col">edit</th>
       <th scope="col">delete</th>
@@ -22,7 +22,7 @@
       <td>{{ r.address }}</td>
       <td>{{ r.type }}</td>
       <td>{{ r.number }}</td>
-      <td>{{ r.price }}</td>
+      <td>{{ r.price_str() }}</td>
       <td>
         <a href="{{ url_for('resources_single', resource_id=r.id) }}">details</a>
       </td>

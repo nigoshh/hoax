@@ -3,11 +3,11 @@ from sqlalchemy.sql import text
 from application import db
 from application.models import Base
 
-admin = db.Table('admin',
-                 db.Column('account_id', db.Integer,
-                           db.ForeignKey('account.id'), primary_key=True),
-                 db.Column('community_id', db.Integer,
-                           db.ForeignKey('community.id'), primary_key=True))
+admin = db.Table("admin",
+                 db.Column("account_id", db.Integer,
+                           db.ForeignKey("account.id"), primary_key=True),
+                 db.Column("community_id", db.Integer,
+                           db.ForeignKey("community.id"), primary_key=True))
 
 
 class Account(Base):
@@ -20,12 +20,12 @@ class Account(Base):
     surname = db.Column(db.String(144), nullable=False)
     email = db.Column(db.String(144))
     phone = db.Column(db.String(144))
-    bookings = db.relationship('Booking', lazy=True,
-                               backref=db.backref('account', lazy=False),
+    bookings = db.relationship("Booking", lazy=True,
+                               backref=db.backref("account", lazy=False),
                                cascade="all, delete-orphan")
-    adm_communities = db.relationship('Community', secondary=admin,
-                                      lazy='subquery',
-                                      backref=db.backref('admins', lazy=True))
+    adm_communities = db.relationship("Community", secondary=admin,
+                                      lazy="subquery",
+                                      backref=db.backref("admins", lazy=True))
 
     def __init__(self, community_id, username, pw_hash,
                  apartment, forename, surname, email, phone):
@@ -50,8 +50,11 @@ class Account(Base):
     def is_authenticated(self):
         return True
 
+    def __str__(self):
+        return self.username
+
     @staticmethod
-    def get_allowed_accounts():
+    def get_allowed():
         if not current_user.is_authenticated:
             return []
         stmt = text("SELECT * FROM account "

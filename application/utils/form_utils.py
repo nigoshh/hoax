@@ -18,7 +18,3 @@ def length_if_present(min=-1, max=-1):
             if len < min or (max != -1 and len > max):
                 raise ValidationError(msg)
     return ln_if_p
-
-
-def resource_label(r):
-    return "%s %s %s" % (r.address, r.type, r.number)

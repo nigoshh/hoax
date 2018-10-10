@@ -4,7 +4,8 @@
 {% block body %}
 <form method="POST" action="{{ url_for('bookings_create') }}" novalidate>
   {{ form_row([(form.account, ""), (form.resource, "")]) }}
-  {{ form_row([(form.start_time, "YYYY-MM-DD hh:mm:ss"), (form.end_time, "YYYY-MM-DD hh:mm:ss")]) }}
+  {{ form_row([(form.start_date, ""), (form.start_time, "")]) }}
+  {{ form_row([(form.end_date, ""), (form.end_time, "")]) }}
 
   {{ form.submit(class_="btn btn-primary") }}
 </form>

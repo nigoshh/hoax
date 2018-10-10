@@ -8,8 +8,11 @@
       <th scope="col">#</th>
       <th scope="col">account</th>
       <th scope="col">resource</th>
+      <th scope="col">starting date</th>
       <th scope="col">starting time</th>
+      <th scope="col">ending date</th>
       <th scope="col">ending time</th>
+      <th scope="col">price</th>
       <th scope="col">details</th>
       <th scope="col">edit</th>
       <th scope="col">delete</th>
@@ -20,9 +23,12 @@
     <tr>
       <th scope="row">{{ loop.index }}</th>
       <td>{{ b.account.username }}</td>
-      <td>{{ b.resource.address }} {{ b.resource.type }} {{ b.resource.number }}</td>
-      <td>{{ b.start_time }}</td>
-      <td>{{ b.end_time }}</td>
+      <td>{{ b.resource }}</td>
+      <td>{{ b.start_dt.strftime("%d/%m/%Y") }}</td>
+      <td>{{ b.start_dt.strftime("%H:%M") }}</td>
+      <td>{{ b.end_dt.strftime("%d/%m/%Y") }}</td>
+      <td>{{ b.end_dt.strftime("%H:%M") }}</td>
+      <td>{{ b.price_str() }}</td>
       <td>
         <a href="{{ url_for('bookings_single', booking_id=b.id) }}">details</a>
       </td>

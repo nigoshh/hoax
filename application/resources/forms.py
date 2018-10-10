@@ -1,11 +1,15 @@
+from decimal import ROUND_DOWN
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SubmitField, validators
+from wtforms import (DecimalField, IntegerField, StringField, SubmitField,
+                     validators)
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from application.communities.models import Community
 
-ln = validators.Length
 rq = validators.InputRequired
+ln = validators.Length
+nr = validators.NumberRange
 opt = validators.Optional
+nr_msg = "Price must be between %(min)s and %(max)s (both inclusive)."
 
 
 def all_c():
@@ -16,8 +20,10 @@ class ResourceFormCreate(FlaskForm):
     address = StringField("address", [rq(), ln(max=144)])
     type = StringField("type", [rq(), ln(max=144)])
     number = IntegerField("number", [rq()])
-    price = IntegerField("price", [rq()])
-    communities = QuerySelectMultipleField("communities", get_label="address",
+    price = DecimalField("price (€/hour)", [rq(), nr(min=0, max=1000000,
+                         message=nr_msg)], rounding=ROUND_DOWN)
+    communities = QuerySelectMultipleField("allowed communities",
+                                           get_label="address",
                                            query_factory=all_c)
     submit = SubmitField("create resource")
 
@@ -29,8 +35,10 @@ class ResourceFormUpdate(FlaskForm):
     address = StringField("address", [ln(max=144)])
     type = StringField("type", [ln(max=144)])
     number = IntegerField("number", [opt()])
-    price = IntegerField("price", [opt()])
-    communities = QuerySelectMultipleField("communities", get_label="address",
+    price = DecimalField("price (€/hour)", [nr(min=0, max=1000000,
+                         message=nr_msg), opt()], rounding=ROUND_DOWN)
+    communities = QuerySelectMultipleField("allowed communities",
+                                           get_label="address",
                                            query_factory=all_c)
     submit = SubmitField("update resource")
 

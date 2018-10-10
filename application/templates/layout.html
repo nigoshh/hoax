@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta charset="utf-8">
     <title>HOAX booking</title>
@@ -16,37 +16,37 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-accounts" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               accounts
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown-accounts">
               <a class="dropdown-item" href="{{ url_for('accounts_list') }}">list accounts</a>
               <a class="dropdown-item" href="{{ url_for('accounts_form_create') }}">create a new account</a>
             </div>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-communities" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               communities
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown-communities">
               <a class="dropdown-item" href="{{ url_for('communities_list') }}">list communities</a>
               <a class="dropdown-item" href="{{ url_for('communities_form_create') }}">create a new community</a>
             </div>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-resources" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               resources
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown-resources">
               <a class="dropdown-item" href="{{ url_for('resources_list') }}">list resources</a>
               <a class="dropdown-item" href="{{ url_for('resources_form_create') }}">create a new resource</a>
             </div>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-bookings" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               bookings
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown-bookings">
               <a class="dropdown-item" href="{{ url_for('bookings_list') }}">list bookings</a>
               <a class="dropdown-item" href="{{ url_for('bookings_form_create') }}">create a new booking</a>
             </div>

@@ -1,4 +1,5 @@
 import copy
+from decimal import Decimal, ROUND_DOWN
 from application import app, db
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
@@ -38,7 +39,8 @@ def resources_create():
         return render_template("resources/new.html", form=form)
 
     r = Resource(form.address.data, form.type.data, form.number.data,
-                 form.price.data, form.communities.data)
+                 form.price.data.quantize(Decimal('.01'), rounding=ROUND_DOWN),
+                 form.communities.data)
 
     try:
         db.session().add(r)
