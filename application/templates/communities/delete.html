@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<form class="form-inline" method="POST" action="{{ url_for('communities_delete', community_id=community.id) }}">
+<h1>delete community</h1>
+
+<form method="POST" action="{{ url_for('communities_delete', community_id=community.id) }}">
   <p class="text-center">are you sure you want to delete the {{ community.address }} community? all the information related to this community will be gone, forever (including related accounts, bookings and invoices)</p>
   <div class="row">
     <div class="col-auto mr-auto">

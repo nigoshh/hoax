@@ -14,6 +14,7 @@ def communities_form_create():
 
 
 @app.route("/communities/", methods=["GET"])
+@login_required
 def communities_list():
     return render_template("communities/list.html",
                            communities=Community.query.order_by("address"))

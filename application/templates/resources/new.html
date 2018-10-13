@@ -2,9 +2,11 @@
 {% from "forms.html" import form_row %}
 
 {% block body %}
+<h1>new resource</h1>
+
 <form method="POST" action="{{ url_for('resources_create') }}" novalidate>
   {{ form_row([(form.address, ""), (form.communities, "")]) }}
-  {{ form_row([(form.type, ""), (form.number, ""), (form.price, "")]) }}
+  {{ form_row([(form.type, ""), (form.name, ""), (form.price, "")]) }}
 
   {{ form.submit(class_="btn btn-primary") }}
 </form>

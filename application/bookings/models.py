@@ -1,3 +1,4 @@
+from datetime import datetime as dt
 from decimal import Decimal, ROUND_DOWN
 from flask_login import current_user
 from sqlalchemy import CheckConstraint, text
@@ -23,11 +24,33 @@ class Booking(Base):
         self.resource_id = resource_id
         self.start_dt = start_dt
         self.end_dt = end_dt
+        self.calculate_price()
 
     def __str__(self):
-        return "%s %s %s %5.2f" % (self.resource, self.start_dt,
-                                   self.account.username,
-                                   self.price)
+        start_dt = ""
+        if type(self.start_dt) is str:
+            start_dt = dt.fromisoformat(self.start_dt)
+        else:
+            start_dt = self.start_dt
+        start_date = start_dt.strftime("%d/%m/%Y")
+        return "%.2f €, %s, %s, %s" % (self.price, self.account,
+                                       self.resource, start_date)
+
+    def str_no_account(self):
+        start_dt = self.start_dt.strftime("%d/%m/%Y %H:%M")
+        return "%.2f €, %s, %s" % (self.price, self.resource, start_dt)
+
+    def start_date_str(self):
+        return self.start_dt.strftime("%d/%m/%Y")
+
+    def start_time_str(self):
+        return self.start_dt.strftime("%H:%M")
+
+    def end_date_str(self):
+        return self.end_dt.strftime("%d/%m/%Y")
+
+    def end_time_str(self):
+        return self.end_dt.strftime("%H:%M")
 
     def price_str(self):
         return "%.2f €" % self.price
@@ -54,14 +77,21 @@ class Booking(Base):
         return not db.engine.execute(stmt).fetchone()
 
     @staticmethod
-    def get_allowed():
+    def get_allowed(invoice_id=None):
         if not current_user.is_authenticated:
             return []
-        stmt = text("SELECT * FROM booking WHERE account_id IN "
-                    "(SELECT account.id FROM account "
-                    "INNER JOIN admin "
-                    "ON account.community_id = admin.community_id "
-                    "WHERE admin.account_id = :user_id) "
-                    "OR account_id = :user_id"
-                    ).params(user_id=current_user.get_id())
+        query = ("SELECT * FROM booking WHERE (account_id IN "
+                 "(SELECT account.id FROM account "
+                 "INNER JOIN admin "
+                 "ON account.community_id = admin.community_id "
+                 "WHERE admin.account_id = :user_id) "
+                 "OR account_id = :user_id) "
+                 "AND id NOT IN "
+                 "(SELECT booking_id FROM invoice_booking")
+        params = {"user_id": current_user.get_id()}
+        if invoice_id:
+            query += " WHERE invoice_id <> :invoice_id"
+            params["invoice_id"] = invoice_id
+        query += ")"
+        stmt = text(query).params(params)
         return db.session.query(Booking).from_statement(stmt).all()

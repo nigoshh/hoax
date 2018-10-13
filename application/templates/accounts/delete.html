@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<form class="form-inline" method="POST" action="{{ url_for('accounts_delete', account_id=account.id) }}">
+<h1>delete account</h1>
+
+<form method="POST" action="{{ url_for('accounts_delete', account_id=account.id) }}">
   <p class="text-center">are you sure you want to delete the {{ account.username }} account? all the information related to this account will be gone, forever (including related bookings and invoices)</p>
   <div class="row">
     <div class="col-auto mr-auto">

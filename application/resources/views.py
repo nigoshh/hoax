@@ -9,12 +9,12 @@ from application.resources.forms import ResourceFormCreate, ResourceFormUpdate
 
 
 def msg_unique_atn_1(form):
-    return ("%s number %d already exists at address %s."
-            % (form.type.data.capitalize(), form.number.data,
+    return ("%s %s already exists at address %s."
+            % (form.type.data.capitalize(), form.name.data,
                form.address.data))
 
 
-msg_unique_atn_2 = "Please change either address, type or number."
+msg_unique_atn_2 = "Please change either address, type or name/identifier."
 
 
 @app.route("/resources/new/")
@@ -25,6 +25,7 @@ def resources_form_create():
 
 
 @app.route("/resources/", methods=["GET"])
+@login_required
 def resources_list():
     return render_template("resources/list.html",
                            resources=Resource.query.order_by("address"))
@@ -38,7 +39,7 @@ def resources_create():
     if not form.validate():
         return render_template("resources/new.html", form=form)
 
-    r = Resource(form.address.data, form.type.data, form.number.data,
+    r = Resource(form.address.data, form.type.data, form.name.data,
                  form.price.data.quantize(Decimal('.01'), rounding=ROUND_DOWN),
                  form.communities.data)
 
@@ -47,7 +48,7 @@ def resources_create():
         db.session().commit()
     except exc.SQLAlchemyError as e:
         db.session().rollback()
-        for field in [form.address, form.type, form.number]:
+        for field in [form.address, form.type, form.name]:
             field.errors.extend([msg_unique_atn_1(form), msg_unique_atn_2])
         return render_template("resources/new.html", form=form)
 
@@ -88,7 +89,7 @@ def resources_update(resource_id):
         db.session().commit()
     except exc.SQLAlchemyError as e:
         db.session().rollback()
-        for field in [form.address, form.type, form.number]:
+        for field in [form.address, form.type, form.name]:
             field.errors.extend([msg_unique_atn_1(form), msg_unique_atn_2])
         return render_template("resources/update.html",
                                resource=old_r, form=form)

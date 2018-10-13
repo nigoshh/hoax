@@ -2,6 +2,8 @@
 {% from "forms.html" import form_row %}
 
 {% block body %}
+<h1>new booking</h1>
+
 <form method="POST" action="{{ url_for('bookings_create') }}" novalidate>
   {{ form_row([(form.account, ""), (form.resource, "")]) }}
   {{ form_row([(form.start_date, ""), (form.start_time, "")]) }}

@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<form class="form-inline" method="POST" action="{{ url_for('resources_delete', resource_id=resource.id) }}">
-  <p class="text-center">are you sure you want to delete the {{ resource.address }} {{ resource.type }} {{ resource.number }} resource? all the information related to this resource will be gone, forever (including related bookings and invoices)</p>
+<h1>delete resource</h1>
+
+<form method="POST" action="{{ url_for('resources_delete', resource_id=resource.id) }}">
+  <p class="text-center">are you sure you want to delete the resource {{ resource }}? all the information related to this resource will be gone, forever (including related bookings and invoices)</p>
   <div class="row">
     <div class="col-auto mr-auto">
       <button type="submit" class="btn btn-primary mb-2">delete resource</button>

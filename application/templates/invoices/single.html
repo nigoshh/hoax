@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h1>invoice details</h1>
+
+<table class="table table-striped table-dark table-hover">
+  <caption>invoice details</caption>
+  <tbody>
+    <tr>
+      <th scope="row">account</th>
+      <td>{{ invoice.bookings[0].account }}</td>
+    </tr>
+    <tr>
+      <th scope="row">reference number</th>
+      <td>{{ invoice }}</td>
+    </tr>
+      <th scope="row">bookings</th>
+      <td>
+        {% for b in invoice.bookings %}
+        {{ b.str_no_account() }}<br>
+        {% endfor %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">total price</th>
+      <td>{{ invoice.price_str() }}</td>
+    </tr>
+    <tr>
+    <tr>
+      <th scope="row">paid</th>
+      <td>{{ invoice.paid }}</td>
+    </tr>
+    <tr>
+  </tbody>
+</table>
+<div class="row">
+  <div class="col-auto mr-auto">
+    <a href="{{ url_for('invoices_form_update', invoice_id=invoice.id) }}">edit invoice</a>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('invoices_delete_ask', invoice_id=invoice.id) }}">delete invoice</a>
+  </div>
+</div>
+{% endblock %}

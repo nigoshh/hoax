@@ -33,7 +33,7 @@ from application.communities import models
 from application.communities import views
 
 from application.invoices import models
-# from application.invoices import views
+from application.invoices import views
 
 from application.resources import models
 from application.resources import views

@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 
 {% block body %}
+<h1>bookings list</h1>
+
 <table class="table table-striped table-hover">
   <caption>list of bookings</caption>
   <thead class="thead-dark">
@@ -22,12 +24,12 @@
     {% for b in bookings %}
     <tr>
       <th scope="row">{{ loop.index }}</th>
-      <td>{{ b.account.username }}</td>
+      <td>{{ b.account }}</td>
       <td>{{ b.resource }}</td>
-      <td>{{ b.start_dt.strftime("%d/%m/%Y") }}</td>
-      <td>{{ b.start_dt.strftime("%H:%M") }}</td>
-      <td>{{ b.end_dt.strftime("%d/%m/%Y") }}</td>
-      <td>{{ b.end_dt.strftime("%H:%M") }}</td>
+      <td>{{ b.start_date_str() }}</td>
+      <td>{{ b.start_time_str() }}</td>
+      <td>{{ b.end_date_str() }}</td>
+      <td>{{ b.end_time_str() }}</td>
       <td>{{ b.price_str() }}</td>
       <td>
         <a href="{{ url_for('bookings_single', booking_id=b.id) }}">details</a>

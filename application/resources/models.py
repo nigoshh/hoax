@@ -9,25 +9,25 @@ from sqlalchemy import UniqueConstraint
 class Resource(Base):
     address = db.Column(db.String(144), nullable=False)
     type = db.Column(db.String(144), nullable=False)
-    number = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String(144), nullable=False)
     price = db.Column(db.Numeric,
                       db.CheckConstraint("price >= 0 AND price <= 1000000"),
                       nullable=False)
     bookings = db.relationship("Booking", lazy=True,
                                backref=db.backref("resource", lazy=False),
                                cascade="all, delete-orphan")
-    __table_args__ = (UniqueConstraint("address", "type", "number",
+    __table_args__ = (UniqueConstraint("address", "type", "name",
                       name="unique_atn"), )
 
-    def __init__(self, address, type, number, price, communities):
+    def __init__(self, address, type, name, price, communities):
         self.address = address
         self.type = type
-        self.number = number
+        self.name = name
         self.price = price
         self.communities = communities
 
     def __str__(self):
-        return "%s, %s %d" % (self.address, self.type, self.number)
+        return "%s, %s %s" % (self.address, self.type, self.name)
 
     def price_rnd(self):
         return self.price.quantize(Decimal('.01'), rounding=ROUND_DOWN)

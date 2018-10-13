@@ -1,6 +1,7 @@
 from wtforms import ValidationError
 
 
+# cleans all password fields from a form
 def clean_pw(form):
     for field in ("current_pw", "password", "repeat_pw"):
         try:
@@ -9,6 +10,7 @@ def clean_pw(form):
             pass
 
 
+# custom validator to check input length only if input is not empty
 def length_if_present(min=-1, max=-1):
     def ln_if_p(form, field):
         msg = ("%s must be between %d and %d characters long"

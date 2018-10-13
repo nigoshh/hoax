@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, DateTimeField, SubmitField, validators
+from wtforms import BooleanField, SubmitField, validators
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from application.bookings.models import Booking
 
@@ -16,11 +16,8 @@ class InvoiceFormCreate(FlaskForm):
 
 
 class InvoiceFormUpdate(FlaskForm):
-    bookings = QuerySelectMultipleField("bookings", [rq()],
-                                        query_factory=Booking.get_allowed)
-    sent = DateTimeField("sent")
-    due = DateTimeField("due")
-    payed = BooleanField("payed")
+    bookings = QuerySelectMultipleField("bookings", [rq()])
+    paid = BooleanField("paid")
     submit = SubmitField("update invoice")
 
     class Meta:

@@ -2,6 +2,8 @@
 {% from "forms.html" import form_row %}
 
 {% block body %}
+<h1>edit community</h1>
+
 <form method="POST" action="{{ url_for('communities_update', community_id=community.id) }}" novalidate>
   {{ form_row([(form.address, community.address)]) }}
   <div class="row">

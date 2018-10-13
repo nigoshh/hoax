@@ -2,6 +2,8 @@
 {% from "forms.html" import form_row %}
 
 {% block body %}
+<h1>new account</h1>
+
 <form method="POST" action="{{ url_for('accounts_create') }}" novalidate>
   {{ form_row([(form.username, ""), (form.community, ""), (form.apartment, "")]) }}
   {{ form_row([(form.password, ""), (form.repeat_pw, "")]) }}

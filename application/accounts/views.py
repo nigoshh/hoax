@@ -16,6 +16,7 @@ def accounts_form_create():
 
 
 @app.route("/accounts/", methods=["GET"])
+@login_required
 def accounts_list():
     return render_template("accounts/list.html",
                            accounts=Account.query.order_by("username"))

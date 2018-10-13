@@ -2,6 +2,8 @@
 {% from "forms.html" import form_row %}
 
 {% block body %}
+<h1>new community</h1>
+
 <form method="POST" action="{{ url_for('communities_create') }}" novalidate>
   {{ form_row([(form.address, "")]) }}
 

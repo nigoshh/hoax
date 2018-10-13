@@ -1,7 +1,6 @@
 from decimal import ROUND_DOWN
 from flask_wtf import FlaskForm
-from wtforms import (DecimalField, IntegerField, StringField, SubmitField,
-                     validators)
+from wtforms import DecimalField, StringField, SubmitField, validators
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from application.communities.models import Community
 
@@ -19,7 +18,7 @@ def all_c():
 class ResourceFormCreate(FlaskForm):
     address = StringField("address", [rq(), ln(max=144)])
     type = StringField("type", [rq(), ln(max=144)])
-    number = IntegerField("number", [rq()])
+    name = StringField("name/identifier", [rq(), ln(max=144)])
     price = DecimalField("price (€/hour)", [rq(), nr(min=0, max=1000000,
                          message=nr_msg)], rounding=ROUND_DOWN)
     communities = QuerySelectMultipleField("allowed communities",
@@ -34,7 +33,7 @@ class ResourceFormCreate(FlaskForm):
 class ResourceFormUpdate(FlaskForm):
     address = StringField("address", [ln(max=144)])
     type = StringField("type", [ln(max=144)])
-    number = IntegerField("number", [opt()])
+    name = StringField("name/identifier", [ln(max=144)])
     price = DecimalField("price (€/hour)", [nr(min=0, max=1000000,
                          message=nr_msg), opt()], rounding=ROUND_DOWN)
     communities = QuerySelectMultipleField("allowed communities",

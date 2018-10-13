@@ -2,11 +2,10 @@
 {% from "forms.html" import form_row %}
 
 {% block body %}
-<h1>login</h1>
+<h1>new invoice</h1>
 
-{{ error }}
-<form method="POST" action="{{ url_for('auth_login') }}" novalidate>
-  {{ form_row([(form.username, ""), (form.password, "")]) }}
+<form method="POST" action="{{ url_for('invoices_create') }}" novalidate>
+  {{ form_row([(form.bookings, "")]) }}
 
   {{ form.submit(class_="btn btn-primary") }}
 </form>

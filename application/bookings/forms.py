@@ -10,7 +10,7 @@ rq = validators.InputRequired
 
 
 class BookingFormCreate(FlaskForm):
-    account = QuerySelectField("account", [rq()], get_label="username",
+    account = QuerySelectField("account", [rq()],
                                query_factory=Account.get_allowed)
     resource = QuerySelectField("resource", [rq()],
                                 query_factory=Resource.get_allowed)
@@ -25,7 +25,7 @@ class BookingFormCreate(FlaskForm):
 
 
 class BookingFormUpdate(FlaskForm):
-    account = QuerySelectField("account", get_label="username",
+    account = QuerySelectField("account",
                                query_factory=Account.get_allowed)
     resource = QuerySelectField("resource",
                                 query_factory=Resource.get_allowed)

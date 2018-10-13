@@ -2,6 +2,8 @@
 {% from "forms.html" import form_row %}
 
 {% block body %}
+<h1>edit account</h1>
+
 <form method="POST" action="{{ url_for('accounts_update', account_id=account.id) }}" novalidate>
   {{ form_row([(form.username, account.username), (form.community, ""), (form.apartment, account.apartment)]) }}
   {{ form_row([(form.current_pw, ""), (form.password, ""), (form.repeat_pw, "")]) }}

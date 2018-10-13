@@ -8,8 +8,7 @@ from application.bookings.forms import BookingFormCreate, BookingFormUpdate
 
 
 def msg_free_rts_1(resource):
-    return ("Resource %s %s %d is already booked in this time slot."
-            % (resource.address, resource.type, resource.number))
+    return "Resource %s is already booked in this time slot." % resource
 
 
 msg_free_rts_2 = "Please check the bookings' list to find a free time slot."
@@ -25,6 +24,7 @@ def bookings_form_create():
 
 
 @app.route("/bookings/", methods=["GET"])
+@login_required
 def bookings_list():
     return render_template("bookings/list.html",
                            bookings=Booking.query.order_by("start_dt"))
@@ -57,7 +57,6 @@ def bookings_create():
                                  msg_free_rts_2])
         return render_template("bookings/new.html", form=form)
 
-    b.calculate_price()
     db.session().add(b)
     db.session().commit()
     return redirect(url_for("bookings_single", booking_id=b.id))
