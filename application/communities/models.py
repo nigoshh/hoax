@@ -24,3 +24,7 @@ class Community(Base):
 
     def __str__(self):
         return self.address
+
+    @staticmethod
+    def get_all():
+        return Community.query.all()

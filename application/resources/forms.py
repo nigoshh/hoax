@@ -11,10 +11,6 @@ opt = validators.Optional
 nr_msg = "Price must be between %(min)s and %(max)s (both inclusive)."
 
 
-def all_c():
-    return Community.query.all()
-
-
 class ResourceFormCreate(FlaskForm):
     address = StringField("address", [rq(), ln(max=144)])
     type = StringField("type", [rq(), ln(max=144)])
@@ -22,8 +18,7 @@ class ResourceFormCreate(FlaskForm):
     price = DecimalField("price (€/hour)", [rq(), nr(min=0, max=1000000,
                          message=nr_msg)], rounding=ROUND_DOWN)
     communities = QuerySelectMultipleField("allowed communities",
-                                           get_label="address",
-                                           query_factory=all_c)
+                                           query_factory=Community.get_all)
     submit = SubmitField("create resource")
 
     class Meta:
@@ -37,8 +32,7 @@ class ResourceFormUpdate(FlaskForm):
     price = DecimalField("price (€/hour)", [nr(min=0, max=1000000,
                          message=nr_msg), opt()], rounding=ROUND_DOWN)
     communities = QuerySelectMultipleField("allowed communities",
-                                           get_label="address",
-                                           query_factory=all_c)
+                                           query_factory=Community.get_all)
     submit = SubmitField("update resource")
 
     class Meta:

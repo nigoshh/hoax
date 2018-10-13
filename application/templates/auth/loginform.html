@@ -5,7 +5,7 @@
 <h1>login</h1>
 
 {{ error }}
-<form method="POST" action="{{ url_for('auth_login') }}" novalidate>
+<form method="POST" action="{{ url_for('auth_login') ~ '?next=' ~ next }}" novalidate>
   {{ form_row([(form.username, ""), (form.password, "")]) }}
 
   {{ form.submit(class_="btn btn-primary") }}

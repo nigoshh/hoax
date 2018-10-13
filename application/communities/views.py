@@ -1,8 +1,7 @@
 import copy
-from application import app, db
+from application import app, db, login_required
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
-from flask_login import login_required
 from application.communities.models import Community
 from application.communities.forms import (CommunityFormCreate,
                                            CommunityFormUpdate)
@@ -14,7 +13,7 @@ def communities_form_create():
 
 
 @app.route("/communities/", methods=["GET"])
-@login_required
+@login_required()
 def communities_list():
     return render_template("communities/list.html",
                            communities=Community.query.order_by("address"))
@@ -42,7 +41,7 @@ def communities_create():
 
 
 @app.route("/communities/<community_id>/", methods=["GET"])
-@login_required
+@login_required()
 def communities_single(community_id):
     c = Community.query.get(community_id)
 
@@ -53,7 +52,7 @@ def communities_single(community_id):
 
 
 @app.route("/communities/<community_id>/update", methods=["GET"])
-@login_required
+@login_required()
 def communities_form_update(community_id):
     c = Community.query.get(community_id)
 
@@ -65,7 +64,7 @@ def communities_form_update(community_id):
 
 
 @app.route("/communities/<community_id>/", methods=["POST"])
-@login_required
+@login_required()
 def communities_update(community_id):
     c = Community.query.get(community_id)
 
@@ -95,7 +94,7 @@ def communities_update(community_id):
 
 
 @app.route("/communities/<community_id>/delete", methods=["GET"])
-@login_required
+@login_required()
 def communities_delete_ask(community_id):
     c = Community.query.get(community_id)
 
@@ -106,7 +105,7 @@ def communities_delete_ask(community_id):
 
 
 @app.route("/communities/<community_id>/delete", methods=["POST"])
-@login_required
+@login_required()
 def communities_delete(community_id):
     c = Community.query.get(community_id)
 

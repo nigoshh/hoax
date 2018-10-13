@@ -11,10 +11,10 @@
       <td>{{ community.address }}</td>
     </tr>
     <tr>
-      <th scope="row">accounts</th>
+      <th scope="row">accounts (members)</th>
       <td>
         {% for a in community.accounts %}
-        {{ a.username }}<br>
+        {{ a }}<br>
         {% endfor %}
       </td>
     </tr>
@@ -23,6 +23,14 @@
       <td>
         {% for r in community.resources %}
         {{ r }}<br>
+        {% endfor %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">admins</th>
+      <td>
+        {% for a in community.admins %}
+        {{ a }}<br>
         {% endfor %}
       </td>
     </tr>

@@ -1,9 +1,8 @@
 import copy
 from decimal import Decimal, ROUND_DOWN
-from application import app, db
+from application import app, db, login_required
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
-from flask_login import login_required
 from application.resources.models import Resource
 from application.resources.forms import ResourceFormCreate, ResourceFormUpdate
 
@@ -18,21 +17,21 @@ msg_unique_atn_2 = "Please change either address, type or name/identifier."
 
 
 @app.route("/resources/new/")
-@login_required
+@login_required()
 def resources_form_create():
     form = ResourceFormCreate()
     return render_template("resources/new.html", form=form)
 
 
 @app.route("/resources/", methods=["GET"])
-@login_required
+@login_required()
 def resources_list():
     return render_template("resources/list.html",
                            resources=Resource.query.order_by("address"))
 
 
 @app.route("/resources/", methods=["POST"])
-@login_required
+@login_required()
 def resources_create():
     form = ResourceFormCreate(request.form)
 
@@ -56,7 +55,7 @@ def resources_create():
 
 
 @app.route("/resources/<resource_id>/", methods=["GET"])
-@login_required
+@login_required()
 def resources_single(resource_id):
     r = Resource.query.get(resource_id)
 
@@ -67,7 +66,7 @@ def resources_single(resource_id):
 
 
 @app.route("/resources/<resource_id>/update", methods=["GET"])
-@login_required
+@login_required()
 def resources_form_update(resource_id):
     r = Resource.query.get(resource_id)
 
@@ -80,7 +79,7 @@ def resources_form_update(resource_id):
 
 
 @app.route("/resources/<resource_id>/", methods=["POST"])
-@login_required
+@login_required()
 def resources_update(resource_id):
     r = Resource.query.get(resource_id)
 
@@ -110,7 +109,7 @@ def resources_update(resource_id):
 
 
 @app.route("/resources/<resource_id>/delete", methods=["GET"])
-@login_required
+@login_required()
 def resources_delete_ask(resource_id):
     r = Resource.query.get(resource_id)
 
@@ -121,7 +120,7 @@ def resources_delete_ask(resource_id):
 
 
 @app.route("/resources/<resource_id>/delete", methods=["POST"])
-@login_required
+@login_required()
 def resources_delete(resource_id):
     r = Resource.query.get(resource_id)
 

@@ -1,8 +1,7 @@
 import copy
 from datetime import datetime as dt
-from application import app, db
+from application import app, db, login_required
 from flask import redirect, render_template, request, url_for
-from flask_login import login_required
 from application.bookings.models import Booking
 from application.bookings.forms import BookingFormCreate, BookingFormUpdate
 
@@ -17,21 +16,21 @@ msg_start = "Starting time must be before ending time."
 
 
 @app.route("/bookings/new/")
-@login_required
+@login_required()
 def bookings_form_create():
     form = BookingFormCreate()
     return render_template("bookings/new.html", form=form)
 
 
 @app.route("/bookings/", methods=["GET"])
-@login_required
+@login_required()
 def bookings_list():
     return render_template("bookings/list.html",
                            bookings=Booking.query.order_by("start_dt"))
 
 
 @app.route("/bookings/", methods=["POST"])
-@login_required
+@login_required()
 def bookings_create():
     form = BookingFormCreate(request.form)
 
@@ -63,7 +62,7 @@ def bookings_create():
 
 
 @app.route("/bookings/<booking_id>/", methods=["GET"])
-@login_required
+@login_required()
 def bookings_single(booking_id):
     b = Booking.query.get(booking_id)
 
@@ -74,7 +73,7 @@ def bookings_single(booking_id):
 
 
 @app.route("/bookings/<booking_id>/update", methods=["GET"])
-@login_required
+@login_required()
 def bookings_form_update(booking_id):
     b = Booking.query.get(booking_id)
 
@@ -92,7 +91,7 @@ def bookings_form_update(booking_id):
 
 
 @app.route("/bookings/<booking_id>/", methods=["POST"])
-@login_required
+@login_required()
 def bookings_update(booking_id):
     b = Booking.query.get(booking_id)
 
@@ -136,7 +135,7 @@ def bookings_update(booking_id):
 
 
 @app.route("/bookings/<booking_id>/delete", methods=["GET"])
-@login_required
+@login_required()
 def bookings_delete_ask(booking_id):
     b = Booking.query.get(booking_id)
 
@@ -147,7 +146,7 @@ def bookings_delete_ask(booking_id):
 
 
 @app.route("/bookings/<booking_id>/delete", methods=["POST"])
-@login_required
+@login_required()
 def bookings_delete(booking_id):
     b = Booking.query.get(booking_id)
 

@@ -1,8 +1,7 @@
 import copy
-from application import app, db
+from application import app, db, login_required
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
-from flask_login import login_required
 from passlib.hash import argon2
 from application.accounts.models import Account
 from application.accounts.forms import AccountFormCreate, AccountFormUpdate
@@ -16,7 +15,7 @@ def accounts_form_create():
 
 
 @app.route("/accounts/", methods=["GET"])
-@login_required
+@login_required()
 def accounts_list():
     return render_template("accounts/list.html",
                            accounts=Account.query.order_by("username"))
@@ -50,7 +49,7 @@ def accounts_create():
 
 
 @app.route("/accounts/<account_id>/", methods=["GET"])
-@login_required
+@login_required()
 def accounts_single(account_id):
     a = Account.query.get(account_id)
 
@@ -61,7 +60,7 @@ def accounts_single(account_id):
 
 
 @app.route("/accounts/<account_id>/update", methods=["GET"])
-@login_required
+@login_required()
 def accounts_form_update(account_id):
     a = Account.query.get(account_id)
 
@@ -74,7 +73,7 @@ def accounts_form_update(account_id):
 
 
 @app.route("/accounts/<account_id>/", methods=["POST"])
-@login_required
+@login_required()
 def accounts_update(account_id):
     a = Account.query.get(account_id)
 
@@ -115,7 +114,7 @@ def accounts_update(account_id):
 
 
 @app.route("/accounts/<account_id>/delete", methods=["GET"])
-@login_required
+@login_required()
 def accounts_delete_ask(account_id):
     a = Account.query.get(account_id)
 
@@ -126,7 +125,7 @@ def accounts_delete_ask(account_id):
 
 
 @app.route("/accounts/<account_id>/delete", methods=["POST"])
-@login_required
+@login_required()
 def accounts_delete(account_id):
     a = Account.query.get(account_id)
 

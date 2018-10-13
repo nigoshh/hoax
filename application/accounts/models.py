@@ -23,9 +23,9 @@ class Account(Base):
     bookings = db.relationship("Booking", lazy=True,
                                backref=db.backref("account", lazy=False),
                                cascade="all, delete-orphan")
-    adm_communities = db.relationship("Community", secondary=admin,
-                                      lazy="subquery",
-                                      backref=db.backref("admins", lazy=True))
+    admin_communities = db.relationship("Community", backref=db.backref(
+                                        "admins", lazy=True), lazy="subquery",
+                                        secondary=admin)
 
     def __init__(self, community_id, username, pw_hash,
                  apartment, forename, surname, email, phone):
@@ -49,6 +49,9 @@ class Account(Base):
 
     def is_authenticated(self):
         return True
+
+    def roles(self):
+        return ["ADMIN"] if len(self.admin_communities) > 0 else ["USER"]
 
     def __str__(self):
         return self.username

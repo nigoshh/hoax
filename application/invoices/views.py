@@ -1,8 +1,7 @@
 import copy
-from application import app, db
+from application import app, db, login_required
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
-from flask_login import login_required
 from application.invoices.models import Invoice
 from application.invoices.forms import InvoiceFormCreate, InvoiceFormUpdate
 from application.bookings.models import Booking
@@ -15,20 +14,20 @@ msg_same_account = ("All bookings in an invoice must"
 
 
 @app.route("/invoices/new/")
-@login_required
+@login_required()
 def invoices_form_create():
     return render_template("invoices/new.html", form=InvoiceFormCreate())
 
 
 @app.route("/invoices/", methods=["GET"])
-@login_required
+@login_required()
 def invoices_list():
     return render_template("invoices/list.html",
                            invoices=Invoice.query.order_by("date_created"))
 
 
 @app.route("/invoices/", methods=["POST"])
-@login_required
+@login_required()
 def invoices_create():
     form = InvoiceFormCreate(request.form)
 
@@ -54,7 +53,7 @@ def invoices_create():
 
 
 @app.route("/invoices/<invoice_id>/", methods=["GET"])
-@login_required
+@login_required()
 def invoices_single(invoice_id):
     i = Invoice.query.get(invoice_id)
 
@@ -65,7 +64,7 @@ def invoices_single(invoice_id):
 
 
 @app.route("/invoices/<invoice_id>/update", methods=["GET"])
-@login_required
+@login_required()
 def invoices_form_update(invoice_id):
     i = Invoice.query.get(invoice_id)
 
@@ -80,7 +79,7 @@ def invoices_form_update(invoice_id):
 
 
 @app.route("/invoices/<invoice_id>/", methods=["POST"])
-@login_required
+@login_required()
 def invoices_update(invoice_id):
     i = Invoice.query.get(invoice_id)
 
@@ -122,7 +121,7 @@ def invoices_update(invoice_id):
 
 
 @app.route("/invoices/<invoice_id>/delete", methods=["GET"])
-@login_required
+@login_required()
 def invoices_delete_ask(invoice_id):
     i = Invoice.query.get(invoice_id)
 
@@ -133,7 +132,7 @@ def invoices_delete_ask(invoice_id):
 
 
 @app.route("/invoices/<invoice_id>/delete", methods=["POST"])
-@login_required
+@login_required()
 def invoices_delete(invoice_id):
     i = Invoice.query.get(invoice_id)
 
