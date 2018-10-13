@@ -59,6 +59,10 @@ def resources_create():
 @login_required
 def resources_single(resource_id):
     r = Resource.query.get(resource_id)
+
+    if not r:
+        return render_template("404.html", res_type="resource"), 404
+
     return render_template("resources/single.html", resource=r)
 
 
@@ -66,6 +70,10 @@ def resources_single(resource_id):
 @login_required
 def resources_form_update(resource_id):
     r = Resource.query.get(resource_id)
+
+    if not r:
+        return render_template("404.html", res_type="resource"), 404
+
     form = ResourceFormUpdate()
     form.communities.data = r.communities
     return render_template("resources/update.html", resource=r, form=form)
@@ -75,6 +83,10 @@ def resources_form_update(resource_id):
 @login_required
 def resources_update(resource_id):
     r = Resource.query.get(resource_id)
+
+    if not r:
+        return render_template("404.html", res_type="resource"), 404
+
     old_r = copy.deepcopy(r)
     form = ResourceFormUpdate(request.form)
 
@@ -101,6 +113,10 @@ def resources_update(resource_id):
 @login_required
 def resources_delete_ask(resource_id):
     r = Resource.query.get(resource_id)
+
+    if not r:
+        return render_template("404.html", res_type="resource"), 404
+
     return render_template("resources/delete.html", resource=r)
 
 
@@ -108,6 +124,10 @@ def resources_delete_ask(resource_id):
 @login_required
 def resources_delete(resource_id):
     r = Resource.query.get(resource_id)
+
+    if not r:
+        return render_template("404.html", res_type="resource"), 404
+
     db.session.delete(r)
     db.session.commit()
     return redirect(url_for("resources_list"))

@@ -45,6 +45,10 @@ def communities_create():
 @login_required
 def communities_single(community_id):
     c = Community.query.get(community_id)
+
+    if not c:
+        return render_template("404.html", res_type="community"), 404
+
     return render_template("communities/single.html", community=c)
 
 
@@ -52,6 +56,10 @@ def communities_single(community_id):
 @login_required
 def communities_form_update(community_id):
     c = Community.query.get(community_id)
+
+    if not c:
+        return render_template("404.html", res_type="community"), 404
+
     form = CommunityFormUpdate()
     return render_template("communities/update.html", community=c, form=form)
 
@@ -60,6 +68,10 @@ def communities_form_update(community_id):
 @login_required
 def communities_update(community_id):
     c = Community.query.get(community_id)
+
+    if not c:
+        return render_template("404.html", res_type="community"), 404
+
     old_c = copy.deepcopy(c)
     form = CommunityFormUpdate(request.form)
 
@@ -86,6 +98,10 @@ def communities_update(community_id):
 @login_required
 def communities_delete_ask(community_id):
     c = Community.query.get(community_id)
+
+    if not c:
+        return render_template("404.html", res_type="community"), 404
+
     return render_template("communities/delete.html", community=c)
 
 
@@ -93,6 +109,10 @@ def communities_delete_ask(community_id):
 @login_required
 def communities_delete(community_id):
     c = Community.query.get(community_id)
+
+    if not c:
+        return render_template("404.html", res_type="community"), 404
+
     db.session.delete(c)
     db.session.commit()
     return redirect(url_for("communities_list"))

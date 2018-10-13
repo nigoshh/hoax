@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h1>404 Not Found</h1>
+{% if res_type is defined %}
+<p>The requested {{ res_type }} doesn't exist.</p>
+{% elif error is defined %}
+<p>{{ error }}</p>
+{% else %}
+<p>This page doesn't exist.</p>
+{% endif %}
+{% endblock %}

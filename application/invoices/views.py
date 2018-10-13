@@ -57,6 +57,10 @@ def invoices_create():
 @login_required
 def invoices_single(invoice_id):
     i = Invoice.query.get(invoice_id)
+
+    if not i:
+        return render_template("404.html", res_type="invoice"), 404
+
     return render_template("invoices/single.html", invoice=i)
 
 
@@ -64,6 +68,10 @@ def invoices_single(invoice_id):
 @login_required
 def invoices_form_update(invoice_id):
     i = Invoice.query.get(invoice_id)
+
+    if not i:
+        return render_template("404.html", res_type="invoice"), 404
+
     form = InvoiceFormUpdate()
     form.bookings.query = Booking.get_allowed(invoice_id)
     form.bookings.data = i.bookings
@@ -75,6 +83,10 @@ def invoices_form_update(invoice_id):
 @login_required
 def invoices_update(invoice_id):
     i = Invoice.query.get(invoice_id)
+
+    if not i:
+        return render_template("404.html", res_type="invoice"), 404
+
     old_i = copy.deepcopy(i)
     form = InvoiceFormUpdate(request.form)
     form.bookings.query = Booking.get_allowed(invoice_id)
@@ -113,6 +125,10 @@ def invoices_update(invoice_id):
 @login_required
 def invoices_delete_ask(invoice_id):
     i = Invoice.query.get(invoice_id)
+
+    if not i:
+        return render_template("404.html", res_type="invoice"), 404
+
     return render_template("invoices/delete.html", invoice=i)
 
 
@@ -120,6 +136,10 @@ def invoices_delete_ask(invoice_id):
 @login_required
 def invoices_delete(invoice_id):
     i = Invoice.query.get(invoice_id)
+
+    if not i:
+        return render_template("404.html", res_type="invoice"), 404
+
     db.session.delete(i)
     db.session.commit()
     return redirect(url_for("invoices_list"))

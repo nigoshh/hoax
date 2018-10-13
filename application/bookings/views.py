@@ -66,6 +66,10 @@ def bookings_create():
 @login_required
 def bookings_single(booking_id):
     b = Booking.query.get(booking_id)
+
+    if not b:
+        return render_template("404.html", res_type="booking"), 404
+
     return render_template("bookings/single.html", booking=b)
 
 
@@ -73,6 +77,10 @@ def bookings_single(booking_id):
 @login_required
 def bookings_form_update(booking_id):
     b = Booking.query.get(booking_id)
+
+    if not b:
+        return render_template("404.html", res_type="booking"), 404
+
     form = BookingFormUpdate()
     form.account.data = b.account
     form.resource.data = b.resource
@@ -87,6 +95,10 @@ def bookings_form_update(booking_id):
 @login_required
 def bookings_update(booking_id):
     b = Booking.query.get(booking_id)
+
+    if not b:
+        return render_template("404.html", res_type="booking"), 404
+
     old_b = copy.deepcopy(b)
     form = BookingFormUpdate(request.form)
 
@@ -127,6 +139,10 @@ def bookings_update(booking_id):
 @login_required
 def bookings_delete_ask(booking_id):
     b = Booking.query.get(booking_id)
+
+    if not b:
+        return render_template("404.html", res_type="booking"), 404
+
     return render_template("bookings/delete.html", booking=b)
 
 
@@ -134,6 +150,10 @@ def bookings_delete_ask(booking_id):
 @login_required
 def bookings_delete(booking_id):
     b = Booking.query.get(booking_id)
+
+    if not b:
+        return render_template("404.html", res_type="booking"), 404
+
     db.session.delete(b)
     db.session.commit()
     return redirect(url_for("bookings_list"))

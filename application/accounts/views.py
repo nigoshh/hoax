@@ -53,6 +53,10 @@ def accounts_create():
 @login_required
 def accounts_single(account_id):
     a = Account.query.get(account_id)
+
+    if not a:
+        return render_template("404.html", res_type="account"), 404
+
     return render_template("accounts/single.html", account=a)
 
 
@@ -60,6 +64,10 @@ def accounts_single(account_id):
 @login_required
 def accounts_form_update(account_id):
     a = Account.query.get(account_id)
+
+    if not a:
+        return render_template("404.html", res_type="account"), 404
+
     form = AccountFormUpdate()
     form.community.data = a.community
     return render_template("accounts/update.html", account=a, form=form)
@@ -69,6 +77,10 @@ def accounts_form_update(account_id):
 @login_required
 def accounts_update(account_id):
     a = Account.query.get(account_id)
+
+    if not a:
+        return render_template("404.html", res_type="account"), 404
+
     old_a = copy.deepcopy(a)
     form = AccountFormUpdate(request.form)
 
@@ -106,6 +118,10 @@ def accounts_update(account_id):
 @login_required
 def accounts_delete_ask(account_id):
     a = Account.query.get(account_id)
+
+    if not a:
+        return render_template("404.html", res_type="account"), 404
+
     return render_template("accounts/delete.html", account=a)
 
 
@@ -113,6 +129,10 @@ def accounts_delete_ask(account_id):
 @login_required
 def accounts_delete(account_id):
     a = Account.query.get(account_id)
+
+    if not a:
+        return render_template("404.html", res_type="account"), 404
+
     db.session.delete(a)
     db.session.commit()
     return redirect(url_for("accounts_list"))
