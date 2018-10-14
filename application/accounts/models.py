@@ -28,6 +28,9 @@ class Account(Base):
     bookings = db.relationship("Booking", lazy=True,
                                backref=db.backref("account", lazy=False),
                                cascade="all, delete-orphan")
+    resources = db.relationship("Resource", lazy=True,
+                                backref=db.backref("account", lazy=False),
+                                cascade="all, delete-orphan")
     admin_communities = db.relationship("Community", backref=db.backref(
                                         "admins", lazy=True), lazy="subquery",
                                         secondary=admin)
@@ -70,10 +73,6 @@ class Account(Base):
                     "(SELECT community.id FROM community "
                     "INNER JOIN admin ON community.id = admin.community_id "
                     "WHERE admin.account_id = :user_id) "
-                    "OR id = :user_id").params(user_id=current_user.get_id())
+                    "OR id = :user_id "
+                    "ORDER BY username").params(user_id=current_user.get_id())
         return db.session.query(Account).from_statement(stmt).all()
-
-    @staticmethod
-    def access_allowed(id):
-        return (current_user and ((ADMIN in current_user.roles())
-                                  or str(current_user.get_id()) == id))

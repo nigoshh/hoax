@@ -1,10 +1,17 @@
-from datetime import datetime as dt
+from datetime import datetime
 from decimal import Decimal, ROUND_DOWN
 from flask_login import current_user
 from sqlalchemy import CheckConstraint, text
 from application import db
 from application.models import Base
 from application.resources.models import Resource
+
+
+# to avoid strange type errors with str / datetime
+def format_dt(dt):
+    if type(dt) is str:
+        return datetime.fromisoformat(dt)
+    return dt
 
 
 class Booking(Base):
@@ -27,30 +34,26 @@ class Booking(Base):
         self.calculate_price()
 
     def __str__(self):
-        start_dt = ""
-        if type(self.start_dt) is str:
-            start_dt = dt.fromisoformat(self.start_dt)
-        else:
-            start_dt = self.start_dt
+        start_dt = format_dt(self.start_dt)
         start_date = start_dt.strftime("%d/%m/%Y")
         return "%.2f €, %s, %s, %s" % (self.price, self.account,
                                        self.resource, start_date)
 
     def str_no_account(self):
-        start_dt = self.start_dt.strftime("%d/%m/%Y %H:%M")
+        start_dt = format_dt(self.start_dt).strftime("%d/%m/%Y %H:%M")
         return "%.2f €, %s, %s" % (self.price, self.resource, start_dt)
 
     def start_date_str(self):
-        return self.start_dt.strftime("%d/%m/%Y")
+        return format_dt(self.start_dt).strftime("%d/%m/%Y")
 
     def start_time_str(self):
-        return self.start_dt.strftime("%H:%M")
+        return format_dt(self.start_dt).strftime("%H:%M")
 
     def end_date_str(self):
-        return self.end_dt.strftime("%d/%m/%Y")
+        return format_dt(self.end_dt).strftime("%d/%m/%Y")
 
     def end_time_str(self):
-        return self.end_dt.strftime("%H:%M")
+        return format_dt(self.end_dt).strftime("%H:%M")
 
     def price_str(self):
         return "%.2f €" % self.price
@@ -92,6 +95,6 @@ class Booking(Base):
         if invoice_id:
             query += " WHERE invoice_id <> :invoice_id"
             params["invoice_id"] = invoice_id
-        query += ")"
+        query += ") ORDER BY start_dt"
         stmt = text(query).params(params)
         return db.session.query(Booking).from_statement(stmt).all()

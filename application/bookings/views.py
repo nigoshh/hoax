@@ -1,6 +1,6 @@
 import copy
 from datetime import datetime as dt
-from application import app, db, login_required
+from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
 from application.bookings.models import Booking
 from application.bookings.forms import BookingFormCreate, BookingFormUpdate
@@ -26,7 +26,7 @@ def bookings_form_create():
 @login_required()
 def bookings_list():
     return render_template("bookings/list.html",
-                           bookings=Booking.query.order_by("start_dt"))
+                           bookings=Booking.get_allowed())
 
 
 @app.route("/bookings/", methods=["POST"])
@@ -69,6 +69,9 @@ def bookings_single(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
+    if b.id not in [b.id for b in Booking.get_allowed()]:
+        return login_manager.unauthorized()
+
     return render_template("bookings/single.html", booking=b)
 
 
@@ -79,6 +82,9 @@ def bookings_form_update(booking_id):
 
     if not b:
         return render_template("404.html", res_type="booking"), 404
+
+    if b.id not in [b.id for b in Booking.get_allowed()]:
+        return login_manager.unauthorized()
 
     form = BookingFormUpdate()
     form.account.data = b.account
@@ -97,6 +103,9 @@ def bookings_update(booking_id):
 
     if not b:
         return render_template("404.html", res_type="booking"), 404
+
+    if b.id not in [b.id for b in Booking.get_allowed()]:
+        return login_manager.unauthorized()
 
     old_b = copy.deepcopy(b)
     form = BookingFormUpdate(request.form)
@@ -142,6 +151,9 @@ def bookings_delete_ask(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
+    if b.id not in [b.id for b in Booking.get_allowed()]:
+        return login_manager.unauthorized()
+
     return render_template("bookings/delete.html", booking=b)
 
 
@@ -152,6 +164,9 @@ def bookings_delete(booking_id):
 
     if not b:
         return render_template("404.html", res_type="booking"), 404
+
+    if b.id not in [b.id for b in Booking.get_allowed()]:
+        return login_manager.unauthorized()
 
     db.session.delete(b)
     db.session.commit()

@@ -1,3 +1,5 @@
+from flask_login import current_user
+from sqlalchemy.sql import text
 from application import db
 from application.models import Base
 
@@ -32,3 +34,25 @@ class Invoice(Base):
 
     def calculate_price(self):
         self.price = sum([b.price for b in self.bookings])
+
+    @staticmethod
+    def get_allowed(filter_unpaid=False):
+        if not current_user.is_authenticated:
+            return []
+        query = ("SELECT * FROM invoice WHERE id IN "
+                 "(SELECT invoice_id FROM invoice_booking "
+                 "INNER JOIN booking "
+                 "ON invoice_booking.booking_id = booking.id "
+                 "WHERE booking.account_id IN "
+                 "(SELECT id FROM account "
+                 "WHERE community_id IN "
+                 "(SELECT community.id FROM community "
+                 "INNER JOIN admin "
+                 "ON community.id = admin.community_id "
+                 "WHERE admin.account_id = :user_id) "
+                 "OR id = :user_id)) ")
+        if filter_unpaid:
+            query += "AND paid = 0 "
+        query += "ORDER BY date_created"
+        stmt = text(query).params(user_id=current_user.get_id())
+        return db.session.query(Invoice).from_statement(stmt).all()

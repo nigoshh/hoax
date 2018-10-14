@@ -7,6 +7,8 @@ from sqlalchemy import UniqueConstraint
 
 
 class Resource(Base):
+    account_id = db.Column(db.Integer, db.ForeignKey("account.id"),
+                           nullable=False, index=True)
     address = db.Column(db.String(144), nullable=False)
     type = db.Column(db.String(144), nullable=False, index=True)
     name = db.Column(db.String(144), nullable=False)
@@ -19,7 +21,8 @@ class Resource(Base):
     __table_args__ = (UniqueConstraint("address", "type", "name",
                       name="unique_atn"), )
 
-    def __init__(self, address, type, name, price, communities):
+    def __init__(self, account_id, address, type, name, price, communities):
+        self.account_id = account_id
         self.address = address
         self.type = type
         self.name = name
@@ -34,6 +37,12 @@ class Resource(Base):
 
     def price_str(self):
         return "%.2f €" % self.price
+
+    @staticmethod
+    def get_all():
+        stmt = text("SELECT * FROM resource "
+                    "ORDER BY address, type, name")
+        return db.session.query(Resource).from_statement(stmt).all()
 
     @staticmethod
     def get_allowed():

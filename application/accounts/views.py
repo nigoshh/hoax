@@ -18,7 +18,7 @@ def accounts_form_create():
 @login_required(ADMIN)
 def accounts_list():
     return render_template("accounts/list.html",
-                           accounts=Account.query.order_by("username"))
+                           accounts=Account.get_allowed())
 
 
 @app.route("/accounts/", methods=["POST"])
@@ -51,13 +51,13 @@ def accounts_create():
 @app.route("/accounts/<account_id>/", methods=["GET"])
 @login_required()
 def accounts_single(account_id):
-    if not Account.access_allowed(account_id):
-        return login_manager.unauthorized()
-
     a = Account.query.get(account_id)
 
     if not a:
         return render_template("404.html", res_type="account"), 404
+
+    if a.id not in [a.id for a in Account.get_allowed()]:
+        return login_manager.unauthorized()
 
     return render_template("accounts/single.html", account=a)
 
@@ -65,13 +65,13 @@ def accounts_single(account_id):
 @app.route("/accounts/<account_id>/update", methods=["GET"])
 @login_required()
 def accounts_form_update(account_id):
-    if not Account.access_allowed(account_id):
-        return login_manager.unauthorized()
-
     a = Account.query.get(account_id)
 
     if not a:
         return render_template("404.html", res_type="account"), 404
+
+    if a.id not in [a.id for a in Account.get_allowed()]:
+        return login_manager.unauthorized()
 
     form = AccountFormUpdate()
     form.community.data = a.community
@@ -81,13 +81,13 @@ def accounts_form_update(account_id):
 @app.route("/accounts/<account_id>/", methods=["POST"])
 @login_required()
 def accounts_update(account_id):
-    if not Account.access_allowed(account_id):
-        return login_manager.unauthorized()
-
     a = Account.query.get(account_id)
 
     if not a:
         return render_template("404.html", res_type="account"), 404
+
+    if a.id not in [a.id for a in Account.get_allowed()]:
+        return login_manager.unauthorized()
 
     old_a = copy.deepcopy(a)
     form = AccountFormUpdate(request.form)
@@ -130,6 +130,9 @@ def accounts_delete_ask(account_id):
     if not a:
         return render_template("404.html", res_type="account"), 404
 
+    if a.id not in [a.id for a in Account.get_allowed()]:
+        return login_manager.unauthorized()
+
     return render_template("accounts/delete.html", account=a)
 
 
@@ -140,6 +143,9 @@ def accounts_delete(account_id):
 
     if not a:
         return render_template("404.html", res_type="account"), 404
+
+    if a.id not in [a.id for a in Account.get_allowed()]:
+        return login_manager.unauthorized()
 
     db.session.delete(a)
     db.session.commit()

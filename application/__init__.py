@@ -31,8 +31,8 @@ login_manager.init_app(app)
 login_manager.login_view = "auth_login"
 login_manager.login_message = ("Please log in to access this page. "
                                "If you're already logged in and still seeing "
-                               "this message, it means you need to log in "
-                               "with an admin account to access this page.")
+                               "this message, it means you don't have enough "
+                               "privileges to access this page.")
 
 
 # roles in login_required

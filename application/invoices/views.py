@@ -1,5 +1,5 @@
 import copy
-from application import app, db, login_required
+from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
 from application.invoices.models import Invoice
@@ -22,8 +22,9 @@ def invoices_form_create():
 @app.route("/invoices/", methods=["GET"])
 @login_required()
 def invoices_list():
+    filter_unpaid = False
     return render_template("invoices/list.html",
-                           invoices=Invoice.query.order_by("date_created"))
+                           invoices=Invoice.get_allowed(filter_unpaid))
 
 
 @app.route("/invoices/", methods=["POST"])
@@ -60,6 +61,9 @@ def invoices_single(invoice_id):
     if not i:
         return render_template("404.html", res_type="invoice"), 404
 
+    if i.id not in [i.id for i in Invoice.get_allowed()]:
+        return login_manager.unauthorized()
+
     return render_template("invoices/single.html", invoice=i)
 
 
@@ -70,6 +74,9 @@ def invoices_form_update(invoice_id):
 
     if not i:
         return render_template("404.html", res_type="invoice"), 404
+
+    if i.id not in [i.id for i in Invoice.get_allowed()]:
+        return login_manager.unauthorized()
 
     form = InvoiceFormUpdate()
     form.bookings.query = Booking.get_allowed(invoice_id)
@@ -85,6 +92,9 @@ def invoices_update(invoice_id):
 
     if not i:
         return render_template("404.html", res_type="invoice"), 404
+
+    if i.id not in [i.id for i in Invoice.get_allowed()]:
+        return login_manager.unauthorized()
 
     old_i = copy.deepcopy(i)
     form = InvoiceFormUpdate(request.form)
@@ -128,6 +138,9 @@ def invoices_delete_ask(invoice_id):
     if not i:
         return render_template("404.html", res_type="invoice"), 404
 
+    if i.id not in [i.id for i in Invoice.get_allowed()]:
+        return login_manager.unauthorized()
+
     return render_template("invoices/delete.html", invoice=i)
 
 
@@ -138,6 +151,9 @@ def invoices_delete(invoice_id):
 
     if not i:
         return render_template("404.html", res_type="invoice"), 404
+
+    if i.id not in [i.id for i in Invoice.get_allowed()]:
+        return login_manager.unauthorized()
 
     db.session.delete(i)
     db.session.commit()

@@ -1,7 +1,8 @@
 import copy
 from decimal import Decimal, ROUND_DOWN
-from application import app, db, login_required
+from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
+from flask_login import current_user
 from sqlalchemy import exc
 from application.resources.models import Resource
 from application.resources.forms import ResourceFormCreate, ResourceFormUpdate
@@ -24,10 +25,9 @@ def resources_form_create():
 
 
 @app.route("/resources/", methods=["GET"])
-@login_required()
 def resources_list():
-    return render_template("resources/list.html",
-                           resources=Resource.query.order_by("address"))
+    resources = Resource.get_all()
+    return render_template("resources/list.html", resources=resources)
 
 
 @app.route("/resources/", methods=["POST"])
@@ -38,7 +38,8 @@ def resources_create():
     if not form.validate():
         return render_template("resources/new.html", form=form)
 
-    r = Resource(form.address.data, form.type.data, form.name.data,
+    r = Resource(current_user.get_id(),
+                 form.address.data, form.type.data, form.name.data,
                  form.price.data.quantize(Decimal('.01'), rounding=ROUND_DOWN),
                  form.communities.data)
 
@@ -55,7 +56,6 @@ def resources_create():
 
 
 @app.route("/resources/<resource_id>/", methods=["GET"])
-@login_required()
 def resources_single(resource_id):
     r = Resource.query.get(resource_id)
 
@@ -73,6 +73,9 @@ def resources_form_update(resource_id):
     if not r:
         return render_template("404.html", res_type="resource"), 404
 
+    if r.account_id != current_user.get_id():
+        return login_manager.unauthorized()
+
     form = ResourceFormUpdate()
     form.communities.data = r.communities
     return render_template("resources/update.html", resource=r, form=form)
@@ -85,6 +88,9 @@ def resources_update(resource_id):
 
     if not r:
         return render_template("404.html", res_type="resource"), 404
+
+    if r.account_id != current_user.get_id():
+        return login_manager.unauthorized()
 
     old_r = copy.deepcopy(r)
     form = ResourceFormUpdate(request.form)
@@ -116,6 +122,9 @@ def resources_delete_ask(resource_id):
     if not r:
         return render_template("404.html", res_type="resource"), 404
 
+    if r.account_id != current_user.get_id():
+        return login_manager.unauthorized()
+
     return render_template("resources/delete.html", resource=r)
 
 
@@ -126,6 +135,9 @@ def resources_delete(resource_id):
 
     if not r:
         return render_template("404.html", res_type="resource"), 404
+
+    if r.account_id != current_user.get_id():
+        return login_manager.unauthorized()
 
     db.session.delete(r)
     db.session.commit()

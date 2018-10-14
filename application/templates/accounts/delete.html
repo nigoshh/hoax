@@ -4,7 +4,7 @@
 <h1>delete account</h1>
 
 <form method="POST" action="{{ url_for('accounts_delete', account_id=account.id) }}">
-  <p class="text-center">are you sure you want to delete the {{ account.username }} account? all the information related to this account will be gone, forever (including related bookings and invoices)</p>
+  <p class="lead">are you sure you want to delete the {{ account.username }} account?<br>all the information related to this account will be gone, forever (including related bookings and invoices)</p>
   <div class="row">
     <div class="col-auto mr-auto">
       <button type="submit" class="btn btn-primary mb-2">delete account</button>

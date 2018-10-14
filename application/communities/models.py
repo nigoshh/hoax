@@ -1,3 +1,5 @@
+from flask_login import current_user
+from sqlalchemy.sql import text
 from application import db
 from application.models import Base
 
@@ -27,4 +29,16 @@ class Community(Base):
 
     @staticmethod
     def get_all():
-        return Community.query.all()
+        return Community.query.order_by("address")
+
+    @staticmethod
+    def get_allowed():
+        if not current_user.is_authenticated:
+            return []
+        stmt = text("SELECT * FROM community "
+                    "WHERE id IN "
+                    "(SELECT community.id FROM community "
+                    "INNER JOIN admin ON community.id = admin.community_id "
+                    "WHERE admin.account_id = :user_id) "
+                    "ORDER BY address").params(user_id=current_user.get_id())
+        return db.session.query(Community).from_statement(stmt).all()

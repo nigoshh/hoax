@@ -4,7 +4,7 @@
 <h1>delete invoice</h1>
 
 <form method="POST" action="{{ url_for('invoices_delete', invoice_id=invoice.id) }}">
-  <p class="text-center">are you sure you want to delete invoice number {{ invoice }}? all the information related to this invoice will be gone, forever</p>
+  <p class="lead">are you sure you want to delete invoice number {{ invoice }}?<br>all the information related to this invoice will be gone, forever</p>
   <div class="row">
     <div class="col-auto mr-auto">
       <button type="submit" class="btn btn-primary mb-2">delete invoice</button>

@@ -1,5 +1,5 @@
 import copy
-from application import app, db, login_required
+from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
 from flask_login import current_user
 from sqlalchemy import exc
@@ -45,35 +45,44 @@ def communities_create():
 
 
 @app.route("/communities/<community_id>/", methods=["GET"])
-@login_required()
+@login_required(ADMIN)
 def communities_single(community_id):
     c = Community.query.get(community_id)
 
     if not c:
         return render_template("404.html", res_type="community"), 404
 
+    if c.id not in [c.id for c in Community.get_allowed()]:
+        return login_manager.unauthorized()
+
     return render_template("communities/single.html", community=c)
 
 
 @app.route("/communities/<community_id>/update", methods=["GET"])
-@login_required()
+@login_required(ADMIN)
 def communities_form_update(community_id):
     c = Community.query.get(community_id)
 
     if not c:
         return render_template("404.html", res_type="community"), 404
 
+    if c.id not in [c.id for c in Community.get_allowed()]:
+        return login_manager.unauthorized()
+
     form = CommunityFormUpdate()
     return render_template("communities/update.html", community=c, form=form)
 
 
 @app.route("/communities/<community_id>/", methods=["POST"])
-@login_required()
+@login_required(ADMIN)
 def communities_update(community_id):
     c = Community.query.get(community_id)
 
     if not c:
         return render_template("404.html", res_type="community"), 404
+
+    if c.id not in [c.id for c in Community.get_allowed()]:
+        return login_manager.unauthorized()
 
     old_c = copy.deepcopy(c)
     form = CommunityFormUpdate(request.form)
@@ -105,6 +114,9 @@ def communities_delete_ask(community_id):
     if not c:
         return render_template("404.html", res_type="community"), 404
 
+    if c.id not in [c.id for c in Community.get_allowed()]:
+        return login_manager.unauthorized()
+
     return render_template("communities/delete.html", community=c)
 
 
@@ -115,6 +127,9 @@ def communities_delete(community_id):
 
     if not c:
         return render_template("404.html", res_type="community"), 404
+
+    if c.id not in [c.id for c in Community.get_allowed()]:
+        return login_manager.unauthorized()
 
     db.session.delete(c)
     db.session.commit()
