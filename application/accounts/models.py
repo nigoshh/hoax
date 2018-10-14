@@ -5,15 +5,18 @@ from application.models import Base
 
 admin = db.Table("admin",
                  db.Column("account_id", db.Integer,
-                           db.ForeignKey("account.id"), primary_key=True),
+                           db.ForeignKey("account.id"),
+                           primary_key=True, index=True),
                  db.Column("community_id", db.Integer,
-                           db.ForeignKey("community.id"), primary_key=True))
+                           db.ForeignKey("community.id"),
+                           primary_key=True, index=True))
 
 
 class Account(Base):
-    community_id = db.Column(db.Integer,
-                             db.ForeignKey("community.id"), nullable=False)
-    username = db.Column(db.String(144), nullable=False, unique=True)
+    community_id = db.Column(db.Integer, db.ForeignKey("community.id"),
+                             nullable=False, index=True)
+    username = db.Column(db.String(144), nullable=False,
+                         unique=True, index=True)
     pw_hash = db.Column(db.String(512), nullable=False)
     apartment = db.Column(db.String(144), nullable=False)
     forename = db.Column(db.String(144), nullable=False)

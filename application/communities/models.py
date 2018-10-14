@@ -4,10 +4,10 @@ from application.models import Base
 community_resource = db.Table("community_resource",
                               db.Column("community_id", db.Integer,
                                         db.ForeignKey("community.id"),
-                                        primary_key=True),
+                                        primary_key=True, index=True),
                               db.Column("resource_id", db.Integer,
                                         db.ForeignKey("resource.id"),
-                                        primary_key=True))
+                                        primary_key=True, index=True))
 
 
 class Community(Base):

@@ -8,12 +8,12 @@ from application.resources.models import Resource
 
 
 class Booking(Base):
-    account_id = db.Column(db.Integer,
-                           db.ForeignKey("account.id"), nullable=False)
-    resource_id = db.Column(db.Integer,
-                            db.ForeignKey("resource.id"), nullable=False)
-    start_dt = db.Column(db.DateTime, nullable=False)
-    end_dt = db.Column(db.DateTime, nullable=False)
+    account_id = db.Column(db.Integer, db.ForeignKey("account.id"),
+                           nullable=False, index=True)
+    resource_id = db.Column(db.Integer, db.ForeignKey("resource.id"),
+                            nullable=False, index=True)
+    start_dt = db.Column(db.DateTime, nullable=False, index=True)
+    end_dt = db.Column(db.DateTime, nullable=False, index=True)
     price = db.Column(db.Numeric, db.CheckConstraint("price >= 0"),
                       nullable=False)
     __table_args__ = (CheckConstraint("start_dt < end_dt",

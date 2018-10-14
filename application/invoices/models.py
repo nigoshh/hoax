@@ -4,16 +4,16 @@ from application.models import Base
 invoice_booking = db.Table("invoice_booking",
                            db.Column("invoice_id", db.Integer,
                                      db.ForeignKey("invoice.id"),
-                                     primary_key=True),
+                                     primary_key=True, index=True),
                            db.Column("booking_id", db.Integer,
-                                     db.ForeignKey("booking.id"),
-                                     primary_key=True, unique=True))
+                                     db.ForeignKey("booking.id"), unique=True,
+                                     primary_key=True, index=True))
 
 
 class Invoice(Base):
     price = db.Column(db.Numeric, db.CheckConstraint("price >= 0"),
                       nullable=False)
-    paid = db.Column(db.Boolean, nullable=False)
+    paid = db.Column(db.Boolean, nullable=False, index=True)
     bookings = db.relationship("Booking", secondary=invoice_booking,
                                lazy="subquery", single_parent=True,
                                backref=db.backref("invoice", lazy=True,

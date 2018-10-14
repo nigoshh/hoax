@@ -1,8 +1,9 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
-
 app = Flask(__name__)
 
+
+# database connectivity and ORM
+from flask_sqlalchemy import SQLAlchemy
 import os
 
 if os.environ.get("HEROKU"):
@@ -16,10 +17,10 @@ else:
 # disable a deprecated option
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# object which we use to access the database
 db = SQLAlchemy(app)
 
 
+# login functionality
 from os import urandom
 app.config["SECRET_KEY"] = urandom(32)
 
@@ -28,9 +29,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 login_manager.login_view = "auth_login"
-login_manager.login_message = "please login to use this functionality"
+login_manager.login_message = "Please login to use this functionality."
 
 
+# roles in login_required
 from functools import wraps
 
 def login_required(role="ANY"):
@@ -61,6 +63,7 @@ def login_required(role="ANY"):
     return wrapper
 
 
+# load application content
 from application import views
 
 from application.auth import views
@@ -81,6 +84,7 @@ from application.resources import models
 from application.resources import views
 
 
+# login functionality, part 2
 from application.accounts.models import Account
 
 @login_manager.user_loader
@@ -88,11 +92,13 @@ def load_account(account_id):
     return Account.query.get(account_id)
 
 
+# custom 404 template
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template("404.html", error=error), 404
 
 
+# database creation
 try:
     db.create_all()
 except:

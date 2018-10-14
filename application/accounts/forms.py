@@ -10,6 +10,7 @@ em = validators.Email
 eq = validators.EqualTo
 ln = validators.Length
 ln_if_p = form_utils.length_if_present
+opt = validators.Optional
 rq = validators.InputRequired
 
 
@@ -44,7 +45,7 @@ class AccountFormUpdate(FlaskForm):
     apartment = StringField("apartment", [ln(max=13)])
     forename = StringField("forename", [ln(max=70)])
     surname = StringField("surname", [ln(max=70)])
-    email = StringField("email address", [em(), ln(max=65)])
+    email = StringField("email address", [em(), ln(max=65), opt()])
     phone = StringField("phone", [ln(max=65)])
     admin_communities = (
         QuerySelectMultipleField("administered communities",

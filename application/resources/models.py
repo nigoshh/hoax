@@ -8,7 +8,7 @@ from sqlalchemy import UniqueConstraint
 
 class Resource(Base):
     address = db.Column(db.String(144), nullable=False)
-    type = db.Column(db.String(144), nullable=False)
+    type = db.Column(db.String(144), nullable=False, index=True)
     name = db.Column(db.String(144), nullable=False)
     price = db.Column(db.Numeric,
                       db.CheckConstraint("price >= 0 AND price <= 1000000"),
