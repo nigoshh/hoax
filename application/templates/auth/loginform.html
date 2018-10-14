@@ -4,8 +4,11 @@
 {% block body %}
 <h1>login</h1>
 
-{{ error }}
-<form method="POST" action="{{ url_for('auth_login') ~ '?next=' ~ next }}" novalidate>
+{% if message %}
+<p class="lead">{{ message }}</p>
+{% endif %}
+<form method="POST" action="{{ url_for('auth_login') ~ '?next=' ~ next
+                            if next else url_for('auth_login') }}" novalidate>
   {{ form_row([(form.username, ""), (form.password, "")]) }}
 
   {{ form.submit(class_="btn btn-primary") }}

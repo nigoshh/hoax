@@ -1,7 +1,9 @@
 import copy
 from application import app, db, login_required
 from flask import redirect, render_template, request, url_for
+from flask_login import current_user
 from sqlalchemy import exc
+from application.accounts.models import ADMIN
 from application.communities.models import Community
 from application.communities.forms import (CommunityFormCreate,
                                            CommunityFormUpdate)
@@ -13,7 +15,6 @@ def communities_form_create():
 
 
 @app.route("/communities/", methods=["GET"])
-@login_required()
 def communities_list():
     return render_template("communities/list.html",
                            communities=Community.query.order_by("address"))
@@ -37,7 +38,10 @@ def communities_create():
         form.address.errors.append(msg)
         return render_template("communities/new.html", form=form)
 
-    return redirect(url_for("communities_single", community_id=c.id))
+    if current_user.is_authenticated and ADMIN in current_user.roles():
+        return redirect(url_for("communities_single", community_id=c.id))
+
+    return redirect(url_for("communities_list"))
 
 
 @app.route("/communities/<community_id>/", methods=["GET"])

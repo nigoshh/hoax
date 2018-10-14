@@ -3,6 +3,8 @@ from sqlalchemy.sql import text
 from application import db
 from application.models import Base
 
+ADMIN = "ADMIN"
+
 admin = db.Table("admin",
                  db.Column("account_id", db.Integer,
                            db.ForeignKey("account.id"),
@@ -54,7 +56,7 @@ class Account(Base):
         return True
 
     def roles(self):
-        return ["ADMIN"] if len(self.admin_communities) > 0 else ["USER"]
+        return [ADMIN] if len(self.admin_communities) > 0 else ["USER"]
 
     def __str__(self):
         return self.username
@@ -70,3 +72,8 @@ class Account(Base):
                     "WHERE admin.account_id = :user_id) "
                     "OR id = :user_id").params(user_id=current_user.get_id())
         return db.session.query(Account).from_statement(stmt).all()
+
+    @staticmethod
+    def access_allowed(id):
+        return (current_user and ((ADMIN in current_user.roles())
+                                  or str(current_user.get_id()) == id))

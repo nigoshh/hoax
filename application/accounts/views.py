@@ -1,9 +1,9 @@
 import copy
-from application import app, db, login_required
+from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
 from passlib.hash import argon2
-from application.accounts.models import Account
+from application.accounts.models import Account, ADMIN
 from application.accounts.forms import AccountFormCreate, AccountFormUpdate
 from application.utils.form_utils import clean_pw
 
@@ -15,7 +15,7 @@ def accounts_form_create():
 
 
 @app.route("/accounts/", methods=["GET"])
-@login_required()
+@login_required(ADMIN)
 def accounts_list():
     return render_template("accounts/list.html",
                            accounts=Account.query.order_by("username"))
@@ -51,6 +51,9 @@ def accounts_create():
 @app.route("/accounts/<account_id>/", methods=["GET"])
 @login_required()
 def accounts_single(account_id):
+    if not Account.access_allowed(account_id):
+        return login_manager.unauthorized()
+
     a = Account.query.get(account_id)
 
     if not a:
@@ -62,6 +65,9 @@ def accounts_single(account_id):
 @app.route("/accounts/<account_id>/update", methods=["GET"])
 @login_required()
 def accounts_form_update(account_id):
+    if not Account.access_allowed(account_id):
+        return login_manager.unauthorized()
+
     a = Account.query.get(account_id)
 
     if not a:
@@ -75,6 +81,9 @@ def accounts_form_update(account_id):
 @app.route("/accounts/<account_id>/", methods=["POST"])
 @login_required()
 def accounts_update(account_id):
+    if not Account.access_allowed(account_id):
+        return login_manager.unauthorized()
+
     a = Account.query.get(account_id)
 
     if not a:
@@ -114,7 +123,7 @@ def accounts_update(account_id):
 
 
 @app.route("/accounts/<account_id>/delete", methods=["GET"])
-@login_required()
+@login_required(ADMIN)
 def accounts_delete_ask(account_id):
     a = Account.query.get(account_id)
 
@@ -125,7 +134,7 @@ def accounts_delete_ask(account_id):
 
 
 @app.route("/accounts/<account_id>/delete", methods=["POST"])
-@login_required()
+@login_required(ADMIN)
 def accounts_delete(account_id):
     a = Account.query.get(account_id)
 
