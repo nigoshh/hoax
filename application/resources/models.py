@@ -53,12 +53,12 @@ class Resource(Base):
                     "FROM community_resource, admin "
                     "WHERE community_resource.community_id "
                     "= admin.community_id "
-                    "AND admin.account_id = 1) "
+                    "AND admin.account_id = :user_id) "
                     "OR id IN "
                     "(SELECT DISTINCT resource_id "
                     "FROM community_resource, account "
                     "WHERE community_resource.community_id "
                     "= account.community_id "
-                    "AND account.id = 1)"
+                    "AND account.id = :user_id)"
                     ).params(user_id=current_user.get_id())
         return db.session.query(Resource).from_statement(stmt).all()
