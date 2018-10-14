@@ -1,17 +1,16 @@
 ## user stories
 
-- as a tenant, I can book my housing community's common resources, like saunas and laundry rooms
-- as a tenant, I can make single or recurring reservations for my housing community's common resources
-- as a tenant, I can cancel a single reservation I made, provided that I do that at least one day before its starting time
-- as a tenant, I can access the resource I reserved by entering my personal code at the door
-- as a tenant, I can manage my user account and update my personal information like email address and password
-- as a tenant, I can compose an invoice to pay for the single reservations I made
+- as a user, I can see lists of communities and resources
+- as a registered user, I can share a resource I own (or have access to) with one or many communities
+- as a registered user, I can book the resources that my community has access to, like saunas, laundry rooms, or whatever other users have decided to share (like a piano)
+- as a registered user, I can access the resource I reserved by entering my password at the door
+- as a registered user, I can manage my user account and update my personal information like email address and password
+- as a registered user, I can compose an invoice to pay for the reservations I made
 
-- as an admin, I can assign admins to manage housing communities
-- as an admin, I can specify what common resources can be booked, and at what times they can be booked
-- as an admin, I can create/delete a user account, for example when a tenant moves in/out
-- as an admin, I can compose invoices for tenants
-- as an admin, I can see a summary of resource use and payments
+- as an admin, I can manage one or more housing communities
+- as an admin, I can delete a user account
+- as an admin, I can see lists and details of accounts, bookings and invoices related to the communities I manage
+- as an admin, I can compose invoices for regular users
 
 ## textual SQL queries
 
@@ -38,4 +37,24 @@ SELECT * FROM resource
         (SELECT DISTINCT resource_id FROM community_resource, account
             WHERE community_resource.community_id = account.community_id
             AND account.id = 1)
+```
+
+The following textual SQL query can be found in [invoices/models.py](https://github.com/nigoshh/hoax/blob/master/application/invoices/models.py). It's used to make a list of all the unpaid invoices that a user can see, depending on her user role.
+
+```sql
+SELECT * FROM invoice
+    WHERE id IN
+        (SELECT invoice_id FROM invoice_booking
+            INNER JOIN booking
+            ON invoice_booking.booking_id = booking.id
+            WHERE booking.account_id IN
+                (SELECT id FROM account
+                    WHERE community_id IN
+                        (SELECT community.id FROM community
+                            INNER JOIN admin
+                            ON community.id = admin.community_id
+                            WHERE admin.account_id = :user_id)
+                    OR id = :user_id))
+    AND paid = 0
+    ORDER BY date_created
 ```
