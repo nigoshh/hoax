@@ -5,7 +5,7 @@ from passlib.hash import argon2
 from application import app, login_manager
 from application.accounts.models import Account
 from application.auth.forms import LoginForm
-from application.utils.form_utils import clean_pw
+from application.utils.utils import clean_pw
 
 
 def is_safe_url(target):

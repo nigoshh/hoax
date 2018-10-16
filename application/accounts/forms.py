@@ -3,13 +3,13 @@ from wtforms import (PasswordField, StringField, SubmitField,
                      validators)
 from wtforms.ext.sqlalchemy.fields import (QuerySelectField,
                                            QuerySelectMultipleField)
-from application.utils import form_utils
+from application.utils import utils
 from application.communities.models import Community
 
 em = validators.Email
 eq = validators.EqualTo
 ln = validators.Length
-ln_if_p = form_utils.length_if_present
+ln_if_p = utils.length_if_present
 opt = validators.Optional
 rq = validators.InputRequired
 

@@ -1,5 +1,8 @@
 from wtforms import ValidationError
 
+# str format for prices
+PRICE = "%.2f€"
+
 
 # cleans all password fields from a form
 def clean_pw(form):

@@ -9,10 +9,9 @@
     <tr>
       <th scope="col">#</th>
       <th scope="col">username</th>
-      <th scope="col">forename</th>
-      <th scope="col">surname</th>
       <th scope="col">apartment</th>
       <th scope="col">community</th>
+      <th scope="col">debt</th>
       <th scope="col">details</th>
       <th scope="col">edit</th>
       <th scope="col">delete</th>
@@ -23,10 +22,9 @@
     <tr>
       <th scope="row">{{ loop.index }}</th>
       <td>{{ a.username }}</td>
-      <td>{{ a.forename }}</td>
-      <td>{{ a.surname }}</td>
       <td>{{ a.apartment }}</td>
-      <td>{{ a.community.address }}</td>
+      <td>{{ a.community }}</td>
+      <td>{{ a.debt }}</td>
       <td>
         <a href="{{ url_for('accounts_single', account_id=a.id) }}">details</a>
       </td>

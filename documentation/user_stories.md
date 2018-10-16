@@ -10,11 +10,42 @@
 - as an admin, I can manage one or more housing communities
 - as an admin, I can delete a user account
 - as an admin, I can see lists and details of accounts, bookings and invoices related to the communities I manage
+- as an admin, the list of accounts I can see includes each account's debt
 - as an admin, I can compose invoices for regular users
 
 ## textual SQL queries
 
-This textual SQL query can be found in [accounts/models.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/models.py); it's used in the forms in [booking/forms.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/forms.py) to make a list of accounts that can be selected as liable for the booking, using the [current_user](https://flask-login.readthedocs.io/en/latest/#flask_login.current_user)'s id (parameter :user_id in the query's [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement)). The logic is that if the logged in user (current_user) isn't an admin, she can choose only herself as the account liable for the booking; if she is an admin, she can choose the liable account also from all the accounts in the communities that she administers.
+### aggregate queries
+
+The following aggregate query can be found in [accounts/models.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/models.py); it's used in [accounts/views.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/views.py) in the function _account_list_ to make a list of accounts for the logged in admin. The list includes only the accounts that are from the communities administered by the logged in admin (plus the admin's own account); a similar logic is used in many other textual queries shown below. This is achieved using the [current_user](https://flask-login.readthedocs.io/en/latest/#flask_login.current_user)'s id (parameter :user_id in the query's [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement)). The aggregate function in the query is _SUM_, which calculates the total debt for each account. A booking's price is included into the debt only if the booking isn't in any invoice, or if the invoiced hasn't been paid yet; also, bookings which have not started yet (and thus could be canceled) are not included. The resulting rows are ordered first by _debt_ (accounts with bigger debt first), and then by _account.date_created_, with the logic that if a newer account has already a big debt, it's probably a good idea to keep an eye on it.
+
+```sql
+SELECT account.id, account.username,
+account.apartment, community.address,
+SUM(booking.price) AS debt
+    FROM community
+    LEFT JOIN admin
+        ON admin.community_id = community.id
+    INNER JOIN account
+        ON account.community_id = community.id
+    LEFT JOIN booking
+        ON booking.account_id = account.id
+    LEFT JOIN invoice_booking
+        ON invoice_booking.booking_id = booking.id
+    LEFT JOIN invoice
+        ON invoice.id = invoice_booking.invoice_id
+    WHERE (admin.account_id = :user_id
+        OR account.id = :user_id)
+    AND (invoice_booking.booking_id IS NULL
+        OR invoice.paid = 0)
+    AND booking.start_dt <= :current_dt
+    GROUP BY account.id
+    ORDER BY debt DESC, account.date_created DESC
+```
+
+### other textual queries
+
+The following textual SQL query can be found in [accounts/models.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/models.py); it's used in the forms in [booking/forms.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/forms.py) to make a list of accounts that can be selected as liable for the booking. The logic is that if the logged in user (_current_user_) isn't an admin, she can choose only herself as the account liable for the booking; if she is an admin, she can choose the liable account also from all the accounts in the communities that she administers.
 
 ```sql
 SELECT * FROM account
@@ -25,21 +56,46 @@ SELECT * FROM account
     OR id = :user_id
 ```
 
-This textual SQL query can be found in [resources/models.py](https://github.com/nigoshh/hoax/blob/master/application/resources/models.py); in a similar manner as the previous one, it's used in the forms in [booking/forms.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/forms.py) to make a list of all the resources that can be booked by the logged in user (current_user). The logic is that if the logged is user isn't an admin, she can only book resources that are accessible by the community she is part of; if she is an admin, she can also book resources that are accessible by all the communities that she administers.
+The following textual SQL query can be found in [bookings/models.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/models.py). It's used to check that a time slot is free, when creating a new booking, or updating an existing one. The last row is added only when updating an existing booking. The _:booking_id_ parameter is the booking's id, so that it can be excluded from the query; this is because when updating a booking, the time slot occupied by it should be considered free to use.
 
 ```sql
-SELECT * FROM resource
-    WHERE id IN
-        (SELECT DISTINCT resource_id FROM community_resource, admin
-            WHERE community_resource.community_id = admin.community_id
-            AND admin.account_id = 1)
-    OR id IN
-        (SELECT DISTINCT resource_id FROM community_resource, account
-            WHERE community_resource.community_id = account.community_id
-            AND account.id = 1)
+SELECT id FROM booking
+    WHERE resource_id = :resource_id
+    AND end_dt > :start_dt
+    AND start_dt < :end_dt
+    AND id <> :booking_id
 ```
 
-The following textual SQL query can be found in [invoices/models.py](https://github.com/nigoshh/hoax/blob/master/application/invoices/models.py). It's used to make a list of all the unpaid invoices that a user can see, depending on her user role.
+The following textual SQL query can be found in [bookings/models.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/models.py); it's used in the forms in [invoices/forms.py](https://github.com/nigoshh/hoax/blob/master/application/invoices/forms.py) to make a list of all the bookings accessible by a user, depending on her user role. Only the bookings which are not yet in an invoice are displayed. The third to last row is included only when updating an existing invoice, so that the bookings in it are included into the list.
+
+```sql
+SELECT * FROM booking
+    WHERE (account_id IN
+        (SELECT account.id FROM account
+            INNER JOIN admin
+                ON account.community_id = admin.community_id
+            WHERE admin.account_id = :user_id)
+        OR account_id = :user_id)
+    AND id NOT IN
+        (SELECT booking_id FROM invoice_booking
+            WHERE invoice_id <> :invoice_id
+        )
+    ORDER BY start_dt
+```
+
+The following textual SQL query can be found in [communities/models.py](https://github.com/nigoshh/hoax/blob/master/application/communities/models.py). It's used in [communities/views.py](https://github.com/nigoshh/hoax/blob/master/application/communities/views.py) in many routes, to authorize user access depending on user roles.
+
+```sql
+SELECT * FROM community
+    WHERE id IN
+        (SELECT community.id FROM community
+            INNER JOIN admin
+                ON community.id = admin.community_id
+            WHERE admin.account_id = :user_id)
+    ORDER BY address
+```
+
+The following textual SQL query can be found in [invoices/models.py](https://github.com/nigoshh/hoax/blob/master/application/invoices/models.py). It's used to make a list of all the unpaid invoices accessible by a user, depending on her user role. The second to last row can be omitted; in that case all invoices are displayed (also those that have already been paid).
 
 ```sql
 SELECT * FROM invoice
@@ -57,4 +113,25 @@ SELECT * FROM invoice
                     OR id = :user_id))
     AND paid = 0
     ORDER BY date_created
+```
+
+The following textual SQL query can be found in [resources/models.py](https://github.com/nigoshh/hoax/blob/master/application/resources/models.py). It's a really basic query, but it was quicker to write it in plain SQL than it would have been to figure out how to write it with SQLAlchemy's [order_by](https://docs.sqlalchemy.org/en/latest/orm/query.html?highlight=order_by#sqlalchemy.orm.query.Query.order_by).
+
+```sql
+SELECT * FROM resource
+ORDER BY address, type, name
+```
+
+The following textual SQL query can be found in [resources/models.py](https://github.com/nigoshh/hoax/blob/master/application/resources/models.py); it's used in the forms in [booking/forms.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/forms.py) to make a list of all the resources that can be booked by the logged in user (_current_user_). The logic is that if the logged is user isn't an admin, she can only book resources that are accessible by the community she is part of; if she is an admin, she can also book resources that are accessible by all the communities that she administers.
+
+```sql
+SELECT * FROM resource
+    WHERE id IN
+        (SELECT DISTINCT resource_id FROM community_resource, admin
+            WHERE community_resource.community_id = admin.community_id
+            AND admin.account_id = :user_id)
+    OR id IN
+        (SELECT DISTINCT resource_id FROM community_resource, account
+            WHERE community_resource.community_id = account.community_id
+            AND account.id = :user_id)
 ```

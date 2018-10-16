@@ -1,9 +1,10 @@
 from decimal import Decimal, ROUND_DOWN
 from flask_login import current_user
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import text
 from application import db
 from application.models import Base
-from sqlalchemy import UniqueConstraint
+from application.utils.utils import PRICE
 
 
 class Resource(Base):
@@ -36,7 +37,7 @@ class Resource(Base):
         return self.price.quantize(Decimal('.01'), rounding=ROUND_DOWN)
 
     def price_str(self):
-        return "%.2f €" % self.price
+        return PRICE % self.price
 
     @staticmethod
     def get_all():

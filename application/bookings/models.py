@@ -5,10 +5,11 @@ from sqlalchemy import CheckConstraint, text
 from application import db
 from application.models import Base
 from application.resources.models import Resource
+from application.utils.utils import PRICE
 
 
 # to avoid strange type errors with str / datetime
-def format_dt(dt):
+def check_type_dt(dt):
     if type(dt) is str:
         return datetime.fromisoformat(dt)
     return dt
@@ -34,29 +35,29 @@ class Booking(Base):
         self.calculate_price()
 
     def __str__(self):
-        start_dt = format_dt(self.start_dt)
-        start_date = start_dt.strftime("%d/%m/%Y")
-        return "%.2f €, %s, %s, %s" % (self.price, self.account,
-                                       self.resource, start_date)
+        start_dt = check_type_dt(self.start_dt)
+        start_date = start_dt.strftime("%Y-%m-%d")
+        return (PRICE + ", %s, %s, %s") % (self.price, self.account,
+                                           self.resource, start_date)
 
     def str_no_account(self):
-        start_dt = format_dt(self.start_dt).strftime("%d/%m/%Y %H:%M")
-        return "%.2f €, %s, %s" % (self.price, self.resource, start_dt)
+        start_dt = check_type_dt(self.start_dt).strftime("%Y-%m-%d %H:%M")
+        return (PRICE + ", %s, %s") % (self.price, self.resource, start_dt)
 
     def start_date_str(self):
-        return format_dt(self.start_dt).strftime("%d/%m/%Y")
+        return check_type_dt(self.start_dt).strftime("%Y-%m-%d")
 
     def start_time_str(self):
-        return format_dt(self.start_dt).strftime("%H:%M")
+        return check_type_dt(self.start_dt).strftime("%H:%M")
 
     def end_date_str(self):
-        return format_dt(self.end_dt).strftime("%d/%m/%Y")
+        return check_type_dt(self.end_dt).strftime("%Y-%m-%d")
 
     def end_time_str(self):
-        return format_dt(self.end_dt).strftime("%H:%M")
+        return check_type_dt(self.end_dt).strftime("%H:%M")
 
     def price_str(self):
-        return "%.2f €" % self.price
+        return PRICE % self.price
 
     def calculate_price(self):
         time_span = self.end_dt - self.start_dt
@@ -70,8 +71,8 @@ class Booking(Base):
                  "WHERE resource_id = :resource_id "
                  "AND end_dt > :start_dt "
                  "AND start_dt < :end_dt")
-        stmt = (text(query + " AND id <> :id"
-                     ).params(id=b.id, resource_id=b.resource_id,
+        stmt = (text(query + " AND id <> :booking_id"
+                     ).params(booking_id=b.id, resource_id=b.resource_id,
                               start_dt=b.start_dt, end_dt=b.end_dt)
                 if b.id else
                 text(query

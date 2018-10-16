@@ -2,6 +2,7 @@ from flask_login import current_user
 from sqlalchemy.sql import text
 from application import db
 from application.models import Base
+from application.utils.utils import PRICE
 
 invoice_booking = db.Table("invoice_booking",
                            db.Column("invoice_id", db.Integer,
@@ -30,7 +31,7 @@ class Invoice(Base):
         return str(self.id)
 
     def price_str(self):
-        return "%.2f €" % self.price
+        return PRICE % self.price
 
     def calculate_price(self):
         self.price = sum([b.price for b in self.bookings])

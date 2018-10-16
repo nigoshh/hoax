@@ -5,7 +5,7 @@ from sqlalchemy import exc
 from passlib.hash import argon2
 from application.accounts.models import Account, ADMIN
 from application.accounts.forms import AccountFormCreate, AccountFormUpdate
-from application.utils.form_utils import clean_pw
+from application.utils.utils import clean_pw
 
 
 @app.route("/accounts/new/")
@@ -18,7 +18,7 @@ def accounts_form_create():
 @login_required(ADMIN)
 def accounts_list():
     return render_template("accounts/list.html",
-                           accounts=Account.get_allowed())
+                           accounts=Account.list_with_debt())
 
 
 @app.route("/accounts/", methods=["POST"])
@@ -75,6 +75,7 @@ def accounts_form_update(account_id):
 
     form = AccountFormUpdate()
     form.community.data = a.community
+    form.admin_communities.data = a.admin_communities
     return render_template("accounts/update.html", account=a, form=form)
 
 
@@ -109,6 +110,7 @@ def accounts_update(account_id):
     for field in form:
         if field.data:
             setattr(a, field.name, field.data)
+    a.admin_communities = form.admin_communities.data
 
     try:
         db.session().commit()

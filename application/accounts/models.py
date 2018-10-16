@@ -1,7 +1,9 @@
+from datetime import datetime
 from flask_login import current_user
 from sqlalchemy.sql import text
 from application import db
 from application.models import Base
+from application.utils.utils import PRICE
 
 ADMIN = "ADMIN"
 
@@ -76,3 +78,39 @@ class Account(Base):
                     "OR id = :user_id "
                     "ORDER BY username").params(user_id=current_user.get_id())
         return db.session.query(Account).from_statement(stmt).all()
+
+    @staticmethod
+    def list_with_debt():
+        if not current_user.is_authenticated:
+            return []
+        stmt = text("SELECT account.id, account.username, "
+                    "account.apartment, community.address, "
+                    "SUM(booking.price) AS debt "
+                    "FROM community LEFT JOIN admin "
+                    "ON admin.community_id = community.id "
+                    "INNER JOIN account "
+                    "ON account.community_id = community.id "
+                    "LEFT JOIN booking "
+                    "ON booking.account_id = account.id "
+                    "LEFT JOIN invoice_booking "
+                    "ON invoice_booking.booking_id = booking.id "
+                    "LEFT JOIN invoice "
+                    "ON invoice.id = invoice_booking.invoice_id "
+                    "WHERE (admin.account_id = :user_id "
+                    "OR account.id = :user_id) "
+                    "AND (invoice_booking.booking_id IS NULL "
+                    "OR invoice.paid = 0) "
+                    "AND booking.start_dt <= :current_dt "
+                    "GROUP BY account.id "
+                    "ORDER BY debt DESC, account.date_created DESC"
+                    ).params(user_id=current_user.get_id(),
+                             current_dt=datetime.now())
+        res = db.engine.execute(stmt)
+
+        list = []
+        for row in res:
+            list.append({"id": row[0], "username": row[1],
+                         "apartment": row[2], "community": row[3],
+                         "debt": PRICE % (row[4] if row[4] else 0)})
+
+        return list
