@@ -17,7 +17,7 @@ def communities_form_create():
 @app.route("/communities/", methods=["GET"])
 def communities_list():
     return render_template("communities/list.html",
-                           communities=Community.query.order_by("address"))
+                           communities=Community.list_with_stats())
 
 
 @app.route("/communities/", methods=["POST"])
@@ -45,17 +45,19 @@ def communities_create():
 
 
 @app.route("/communities/<community_id>/", methods=["GET"])
-@login_required(ADMIN)
+@login_required()
 def communities_single(community_id):
     c = Community.query.get(community_id)
 
     if not c:
         return render_template("404.html", res_type="community"), 404
 
-    if c.id not in [c.id for c in Community.get_allowed()]:
-        return login_manager.unauthorized()
+    show_accounts = False
+    if c.id in [c.id for c in Community.get_allowed()]:
+        show_accounts = True
 
-    return render_template("communities/single.html", community=c)
+    return render_template("communities/single.html",
+                           community=c, show_accounts=show_accounts)
 
 
 @app.route("/communities/<community_id>/update", methods=["GET"])

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from flask_login import current_user
 from sqlalchemy.sql import text
 from application import db
@@ -34,7 +35,7 @@ class Invoice(Base):
         return PRICE % self.price
 
     def calculate_price(self):
-        self.price = sum([b.price for b in self.bookings])
+        self.price = sum([Decimal(b.price) for b in self.bookings])
 
     @staticmethod
     def get_allowed(filter_unpaid=False):

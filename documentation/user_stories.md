@@ -1,6 +1,10 @@
 ## user stories
 
 - as a user, I can see lists of communities and resources
+- as a user, the list of communities I see includes stats about how many members are there in each community, and how many resources they have access to
+- as a user, I can see details about a community, including the specific resources its members have access to
+- as a user, I can see details about a resource, including the communities whose members are allowed access to that resource, and the resource's price
+
 - as a registered user, I can share a resource I own (or have access to) with one or many communities
 - as a registered user, I can book the resources that my community has access to, like saunas, laundry rooms, or whatever other users have decided to share (like a piano)
 - as a registered user, I can access the resource I reserved by entering my password at the door
@@ -11,6 +15,7 @@
 - as an admin, I can delete a user account
 - as an admin, I can see lists and details of accounts, bookings and invoices related to the communities I manage
 - as an admin, the list of accounts I can see includes each account's debt
+- as an admin, I can see details about each community I administer, including which accounts are its members and which accounts are its admins
 - as an admin, I can compose invoices for regular users
 
 ## textual SQL queries
@@ -36,11 +41,27 @@ SUM(booking.price) AS debt
         ON invoice.id = invoice_booking.invoice_id
     WHERE (admin.account_id = :user_id
         OR account.id = :user_id)
-    AND (invoice_booking.booking_id IS NULL
+    AND (invoice.id IS NULL
         OR invoice.paid = 0)
-    AND booking.start_dt <= :current_dt
+    AND (booking.id IS NULL
+        OR booking.start_dt <= :current_dt)
     GROUP BY account.id
     ORDER BY debt DESC, account.date_created DESC
+```
+
+The following textual SQL query can be found in [communities/models.py](https://github.com/nigoshh/hoax/blob/master/application/communities/models.py). It's used in [communities/views.py](https://github.com/nigoshh/hoax/blob/master/application/communities/views.py) to get a list of all queries, including some stats. The stats are the number of accounts which are members of a community, and the number of resources a community has access to; both are obtained using the aggregate function _COUNT_. The list's order is somehow arbitrary (meaning that it could very well be another one); it's logic is that an unregistered user is probably more interested in communities that have access to many resources.
+
+```sql
+SELECT community.id, community.address,
+COUNT(DISTINCT account.id) AS accounts,
+COUNT(DISTINCT community_resource.resource_id) AS resources
+    FROM community
+    LEFT JOIN account
+        ON account.community_id = community.id
+    LEFT JOIN community_resource
+        ON community_resource.community_id = community.id
+    GROUP BY community.id
+    ORDER BY resources DESC, accounts DESC, community.address
 ```
 
 ### other textual queries
@@ -83,7 +104,7 @@ SELECT * FROM booking
     ORDER BY start_dt
 ```
 
-The following textual SQL query can be found in [communities/models.py](https://github.com/nigoshh/hoax/blob/master/application/communities/models.py). It's used in [communities/views.py](https://github.com/nigoshh/hoax/blob/master/application/communities/views.py) in many routes, to authorize user access depending on user roles.
+The following textual SQL query can be found in [communities/models.py](https://github.com/nigoshh/hoax/blob/master/application/communities/models.py). It's used in [communities/views.py](https://github.com/nigoshh/hoax/blob/master/application/communities/views.py) in many routes to authorize admin access to a community only if they administer that given community.
 
 ```sql
 SELECT * FROM community

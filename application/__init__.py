@@ -32,7 +32,12 @@ login_manager.login_view = "auth_login"
 login_manager.login_message = ("Please log in to access this page. "
                                "If you're already logged in and still seeing "
                                "this message, it means you don't have enough "
-                               "privileges to access this page.")
+                               "privileges to access this page. If you're "
+                               "trying to edit a booking you should be able "
+                               "to access, make sure that it isn't already "
+                               "been added to an invoice (in that case you "
+                               "have to remove it from the invoice to be able "
+                               "to edit it).")
 
 
 # roles in login_required

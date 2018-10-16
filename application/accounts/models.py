@@ -98,9 +98,10 @@ class Account(Base):
                     "ON invoice.id = invoice_booking.invoice_id "
                     "WHERE (admin.account_id = :user_id "
                     "OR account.id = :user_id) "
-                    "AND (invoice_booking.booking_id IS NULL "
+                    "AND (invoice.id IS NULL "
                     "OR invoice.paid = 0) "
-                    "AND booking.start_dt <= :current_dt "
+                    "AND (booking.id IS NULL "
+                    "OR booking.start_dt <= :current_dt) "
                     "GROUP BY account.id "
                     "ORDER BY debt DESC, account.date_created DESC"
                     ).params(user_id=current_user.get_id(),

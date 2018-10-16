@@ -10,6 +10,7 @@
       <th scope="col">#</th>
       <th scope="col">address</th>
       <th scope="col">accounts (members)</th>
+      <th scope="col">resources (accessible)</th>
       <th scope="col">details</th>
       <th scope="col">edit</th>
       <th scope="col">delete</th>
@@ -20,7 +21,8 @@
     <tr>
       <th scope="row">{{ loop.index }}</th>
       <td>{{ c.address }}</td>
-      <td>{{ c.accounts|length }}</td>
+      <td>{{ c.accounts }}</td>
+      <td>{{ c.resources }}</td>
       <td>
         <a href="{{ url_for('communities_single', community_id=c.id) }}">details</a>
       </td>

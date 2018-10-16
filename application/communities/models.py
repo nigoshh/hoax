@@ -42,3 +42,27 @@ class Community(Base):
                     "WHERE admin.account_id = :user_id) "
                     "ORDER BY address").params(user_id=current_user.get_id())
         return db.session.query(Community).from_statement(stmt).all()
+
+    @staticmethod
+    def list_with_stats():
+        stmt = text("SELECT community.id, community.address, "
+                    "COUNT(DISTINCT account.id) "
+                    "AS accounts, "
+                    "COUNT(DISTINCT community_resource.resource_id) "
+                    "AS resources "
+                    "FROM community "
+                    "LEFT JOIN account "
+                    "ON account.community_id = community.id "
+                    "LEFT JOIN community_resource "
+                    "ON community_resource.community_id = community.id "
+                    "GROUP BY community.id "
+                    "ORDER BY resources DESC, accounts DESC, "
+                    "community.address")
+        res = db.engine.execute(stmt)
+
+        list = []
+        for row in res:
+            list.append({"id": row[0], "address": row[1],
+                         "accounts": row[2], "resources": row[3]})
+
+        return list

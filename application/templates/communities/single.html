@@ -11,18 +11,19 @@
       <td>{{ community.address }}</td>
     </tr>
     <tr>
+      <th scope="row">resources (accessible)</th>
+      <td>
+        {% for r in community.resources %}
+        {{ r }}<br>
+        {% endfor %}
+      </td>
+    </tr>
+    {% if show_accounts %}
+    <tr>
       <th scope="row">accounts (members)</th>
       <td>
         {% for a in community.accounts %}
         {{ a }}<br>
-        {% endfor %}
-      </td>
-    </tr>
-    <tr>
-      <th scope="row">resources</th>
-      <td>
-        {% for r in community.resources %}
-        {{ r }}<br>
         {% endfor %}
       </td>
     </tr>
@@ -34,6 +35,7 @@
         {% endfor %}
       </td>
     </tr>
+    {% endif %}
   </tbody>
 </table>
 <div class="row">
