@@ -54,7 +54,7 @@ class Invoice(Base):
                  "WHERE admin.account_id = :user_id) "
                  "OR id = :user_id)) ")
         if filter_unpaid:
-            query += "AND paid = 0 "
+            query += "AND paid IS FALSE "
         query += "ORDER BY date_created"
         stmt = text(query).params(user_id=current_user.get_id())
         return db.session.query(Invoice).from_statement(stmt).all()

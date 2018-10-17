@@ -42,7 +42,7 @@ SUM(booking.price) AS debt
     WHERE (admin.account_id = :user_id
         OR account.id = :user_id)
     AND (invoice.id IS NULL
-        OR invoice.paid = 0)
+        OR invoice.paid IS FALSE)
     AND (booking.id IS NULL
         OR booking.start_dt <= :current_dt)
     GROUP BY account.id
@@ -132,7 +132,7 @@ SELECT * FROM invoice
                             ON community.id = admin.community_id
                             WHERE admin.account_id = :user_id)
                     OR id = :user_id))
-    AND paid = 0
+    AND paid IS FALSE
     ORDER BY date_created
 ```
 

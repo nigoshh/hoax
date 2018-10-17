@@ -99,7 +99,7 @@ class Account(Base):
                     "WHERE (admin.account_id = :user_id "
                     "OR account.id = :user_id) "
                     "AND (invoice.id IS NULL "
-                    "OR invoice.paid = 0) "
+                    "OR invoice.paid IS FALSE) "
                     "AND (booking.id IS NULL "
                     "OR booking.start_dt <= :current_dt) "
                     "GROUP BY account.id "
