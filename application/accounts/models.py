@@ -84,7 +84,7 @@ class Account(Base):
         if not current_user.is_authenticated:
             return []
         stmt = text("SELECT account.id, account.username,  account.apartment, "
-                    "community.address, debt.debt "
+                    "community.address, COALESCE(debt.debt, 0) "
                     "FROM community LEFT JOIN admin "
                     "ON admin.community_id = community.id "
                     "INNER JOIN account "
@@ -110,8 +110,7 @@ class Account(Base):
 
         list = []
         for row in res:
-            list.append({"id": row[0], "username": row[1],
-                         "apartment": row[2], "community": row[3],
-                         "debt": PRICE % (row[4] if row[4] else 0)})
+            list.append({"id": row[0], "username": row[1], "apartment": row[2],
+                         "community": row[3], "debt": PRICE % row[4]})
 
         return list
