@@ -80,7 +80,7 @@ def invoices_form_update(invoice_id):
         return login_manager.unauthorized()
 
     form = InvoiceFormUpdate()
-    form.bookings.query = Booking.get_allowed(invoice_id)
+    form.bookings.query = Booking.get_allowed_by_account(invoice_id)
     form.bookings.data = i.bookings
     form.paid.data = i.paid
     return render_template("invoices/update.html", invoice=i, form=form)
@@ -99,7 +99,7 @@ def invoices_update(invoice_id):
 
     old_i = copy.deepcopy(i)
     form = InvoiceFormUpdate(request.form)
-    form.bookings.query = Booking.get_allowed(invoice_id)
+    form.bookings.query = Booking.get_allowed_by_account(invoice_id)
 
     if not form.validate():
         return render_template("invoices/update.html", invoice=i, form=form)

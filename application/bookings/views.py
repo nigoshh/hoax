@@ -3,7 +3,8 @@ from datetime import datetime as dt
 from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
 from application.bookings.models import Booking
-from application.bookings.forms import BookingFormCreate, BookingFormUpdate
+from application.bookings.forms import (BookingFormCreate, BookingFormFilter,
+                                        BookingFormUpdate)
 
 
 def msg_free_rts_1(resource):
@@ -11,8 +12,18 @@ def msg_free_rts_1(resource):
 
 
 msg_free_rts_2 = "Please check the bookings' list to find a free time slot."
-msg_end = "Ending time must be after starting time."
 msg_start = "Starting time must be before ending time."
+msg_end = "Ending time must be after starting time."
+msg_from = "\"From\" date/time must be before \"to\" date/time."
+msg_to = "\"To\" date/time must be after \"from\" date/time."
+msg_both_from_date = ("If you specify \"from (date)\", "
+                      "you must specify also \"from (time)\".")
+msg_both_from_time = ("If you specify \"from (time)\", "
+                      "you must specify also \"from (date)\".")
+msg_both_to_date = ("If you specify \"to (date)\", "
+                    "you must specify also \"to (time)\".")
+msg_both_to_time = ("If you specify \"to (time)\" "
+                    "you must specify also \"to (date)\".")
 
 
 @app.route("/bookings/new/")
@@ -25,8 +36,44 @@ def bookings_form_create():
 @app.route("/bookings/", methods=["GET"])
 @login_required()
 def bookings_list():
-    return render_template("bookings/list.html",
-                           bookings=Booking.get_allowed())
+    form = BookingFormFilter(request.args)
+    form.validate()
+
+    from_dt = None
+    if (form.from_date.data or form.from_time.data):
+        if (form.from_date.data and form.from_time.data):
+            from_dt = dt.combine(form.from_date.data, form.from_time.data)
+        elif form.from_date.data:
+            form.from_date.errors.append(msg_both_from_date)
+            form.from_time.errors.append(msg_both_from_date)
+        else:
+            form.from_date.errors.append(msg_both_from_time)
+            form.from_time.errors.append(msg_both_from_time)
+    to_dt = None
+    if (form.to_date.data or form.to_time.data):
+        if (form.to_date.data and form.to_time.data):
+            to_dt = dt.combine(form.to_date.data, form.to_time.data)
+        elif form.to_date.data:
+            form.to_date.errors.append(msg_both_to_date)
+            form.to_time.errors.append(msg_both_to_date)
+        else:
+            form.to_date.errors.append(msg_both_to_time)
+            form.to_time.errors.append(msg_both_to_time)
+
+    if from_dt and to_dt and from_dt >= to_dt:
+        from_dt = None
+        to_dt = None
+        form.from_date.errors.append(msg_from)
+        form.from_time.errors.append(msg_from)
+        form.to_date.errors.append(msg_to)
+        form.to_time.errors.append(msg_to)
+
+    resource_ids = [r.id for r in form.resources.data]
+
+    return render_template(
+        "bookings/list.html", form=form, bookings=Booking
+        .get_allowed_by_resource(from_dt, to_dt, resource_ids,
+                                 form.filter_not_in_invoice.data))
 
 
 @app.route("/bookings/", methods=["POST"])
@@ -69,7 +116,7 @@ def bookings_single(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed()]:
+    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
         return login_manager.unauthorized()
 
     return render_template("bookings/single.html", booking=b)
@@ -83,7 +130,7 @@ def bookings_form_update(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed()]:
+    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
         return login_manager.unauthorized()
 
     form = BookingFormUpdate()
@@ -104,7 +151,7 @@ def bookings_update(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed()]:
+    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
         return login_manager.unauthorized()
 
     old_b = copy.deepcopy(b)
@@ -151,7 +198,7 @@ def bookings_delete_ask(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed()]:
+    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
         return login_manager.unauthorized()
 
     return render_template("bookings/delete.html", booking=b)
@@ -165,7 +212,7 @@ def bookings_delete(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed()]:
+    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
         return login_manager.unauthorized()
 
     db.session.delete(b)

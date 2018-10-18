@@ -81,7 +81,7 @@ class Booking(Base):
         return not db.engine.execute(stmt).fetchone()
 
     @staticmethod
-    def get_allowed(invoice_id=None):
+    def get_allowed_by_account(invoice_id=None):
         if not current_user.is_authenticated:
             return []
         query = ("SELECT * FROM booking WHERE (account_id IN "
@@ -97,5 +97,43 @@ class Booking(Base):
             query += " WHERE invoice_id <> :invoice_id"
             params["invoice_id"] = invoice_id
         query += ") ORDER BY start_dt"
+        stmt = text(query).params(params)
+        return db.session.query(Booking).from_statement(stmt).all()
+
+    @staticmethod
+    def get_allowed_by_resource(from_dt=None, to_dt=None, resource_ids=None,
+                                filter_not_in_invoice=False):
+        if not current_user.is_authenticated:
+            return []
+        query = ("SELECT * FROM booking WHERE (resource_id IN "
+                 "(SELECT DISTINCT community_resource.resource_id "
+                 "FROM community_resource INNER JOIN admin "
+                 "ON admin.community_id = community_resource.community_id "
+                 "WHERE admin.account_id = :user_id) "
+                 "OR resource_id IN "
+                 "(SELECT community_resource.resource_id "
+                 "FROM community_resource INNER JOIN account "
+                 "ON account.community_id = community_resource.community_id "
+                 "WHERE account.id = :user_id))")
+        params = {"user_id": current_user.get_id()}
+        if from_dt:
+            query += " AND end_dt > :from_dt"
+            params["from_dt"] = from_dt
+        if to_dt:
+            query += " AND start_dt < :to_dt"
+            params["to_dt"] = to_dt
+        if resource_ids:
+            query += " AND resource_id IN (:resource_id_0"
+            params["resource_id_0"] = resource_ids[0]
+            list_length = len(resource_ids)
+            if list_length > 1:
+                for i in range(1, list_length):
+                    query += ", :resource_id_%d" % i
+                    params["resource_id_%d" % i] = resource_ids[i]
+            query += ")"
+        if filter_not_in_invoice:
+            query += (" AND id NOT IN "
+                      "(SELECT DISTINCT booking_id FROM invoice_booking)")
+        query += " ORDER BY start_dt"
         stmt = text(query).params(params)
         return db.session.query(Booking).from_statement(stmt).all()

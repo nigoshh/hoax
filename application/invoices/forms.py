@@ -8,7 +8,8 @@ rq = validators.InputRequired
 
 class InvoiceFormCreate(FlaskForm):
     bookings = QuerySelectMultipleField("bookings", [rq()],
-                                        query_factory=Booking.get_allowed)
+                                        query_factory=Booking
+                                        .get_allowed_by_account)
     submit = SubmitField("create invoice")
 
     class Meta:
