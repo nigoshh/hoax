@@ -83,29 +83,29 @@ class Account(Base):
     def list_with_debt():
         if not current_user.is_authenticated:
             return []
-        stmt = text("SELECT account.id, account.username, "
-                    "account.apartment, community.address, "
-                    "SUM(booking.price) AS debt "
+        stmt = text("SELECT account.id, account.username,  account.apartment, "
+                    "community.address, debt.debt "
                     "FROM community LEFT JOIN admin "
                     "ON admin.community_id = community.id "
                     "INNER JOIN account "
                     "ON account.community_id = community.id "
-                    "LEFT JOIN booking "
-                    "ON booking.account_id = account.id "
+                    "LEFT JOIN "
+                    "(SELECT booking.account_id, SUM(booking.price) AS debt "
+                    "FROM booking "
                     "LEFT JOIN invoice_booking "
                     "ON invoice_booking.booking_id = booking.id "
                     "LEFT JOIN invoice "
                     "ON invoice.id = invoice_booking.invoice_id "
-                    "WHERE (admin.account_id = :user_id "
-                    "OR account.id = :user_id) "
-                    "AND (invoice.id IS NULL "
-                    "OR invoice.paid IS FALSE) "
-                    "AND (booking.id IS NULL "
-                    "OR booking.start_dt <= :current_dt) "
-                    "GROUP BY account.id "
-                    "ORDER BY debt DESC, account.date_created DESC"
-                    ).params(user_id=current_user.get_id(),
-                             current_dt=datetime.now())
+                    "WHERE booking.start_dt <= :current_dt "
+                    "AND invoice.paid IS NOT :true "
+                    "GROUP BY booking.account_id"
+                    ") AS debt "
+                    "ON debt.account_id = account.id "
+                    "WHERE admin.account_id = :user_id "
+                    "OR account.id = :user_id "
+                    "ORDER BY debt.debt DESC, account.date_created DESC"
+                    ).params(current_dt=datetime.now(), true=True,
+                             user_id=current_user.get_id())
         res = db.engine.execute(stmt)
 
         list = []

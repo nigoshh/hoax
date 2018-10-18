@@ -53,8 +53,10 @@ class Invoice(Base):
                  "ON community.id = admin.community_id "
                  "WHERE admin.account_id = :user_id) "
                  "OR id = :user_id)) ")
+        params = {"user_id": current_user.get_id()}
         if filter_unpaid:
-            query += "AND paid IS FALSE "
+            query += "AND paid IS :false "
+            params["false"] = False
         query += "ORDER BY date_created"
-        stmt = text(query).params(user_id=current_user.get_id())
+        stmt = text(query).params(params)
         return db.session.query(Invoice).from_statement(stmt).all()

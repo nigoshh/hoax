@@ -22,31 +22,30 @@
 
 ### aggregate queries
 
-The following aggregate query can be found in [accounts/models.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/models.py); it's used in [accounts/views.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/views.py) in the function _account_list_ to make a list of accounts for the logged in admin. The list includes only the accounts that are from the communities administered by the logged in admin (plus the admin's own account); a similar logic is used in many other textual queries shown below. This is achieved using the [current_user](https://flask-login.readthedocs.io/en/latest/#flask_login.current_user)'s id (parameter :user_id in the query's [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement)). The aggregate function in the query is _SUM_, which calculates the total debt for each account. A booking's price is included into the debt only if the booking isn't in any invoice, or if the invoiced hasn't been paid yet; also, bookings which have not started yet (and thus could be canceled) are not included. The resulting rows are ordered first by _debt_ (accounts with bigger debt first), and then by _account.date_created_, with the logic that if a newer account has already a big debt, it's probably a good idea to keep an eye on it.
+The following aggregate query can be found in [accounts/models.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/models.py); it's used in [accounts/views.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/views.py) in the function _account_list_ to make a list of accounts for the logged in admin. The list includes only the accounts that are from the communities administered by the logged in admin (plus the admin's own account); a similar logic is used in many other textual queries shown below. This is achieved using the [current_user](https://flask-login.readthedocs.io/en/latest/#flask_login.current_user)'s id (parameter :user_id in the query's [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement)). The aggregate function in the query is _SUM_, which calculates the total debt for each account. A booking's price is included into the debt only if the booking isn't in any invoice, or if the invoiced hasn't been paid yet; also, bookings which have not started yet (and thus could be canceled) are not included. Boolean _TRUE_ is given as a parameter to allow compatibility between SQLite and PostgreSQL (they have different data type representations for Boolean values). _IS NOT TRUE_ includes _NULL_ values resulting from the _LEFT JOIN_. The query's rows are ordered first by _debt_ (accounts with bigger debt first), and then by _account.date_created_, with the logic that if a newer account has already a big debt, it's probably a good idea to keep an eye on it.
 
 ```sql
-SELECT account.id, account.username,
-account.apartment, community.address,
-SUM(booking.price) AS debt
-    FROM community
-    LEFT JOIN admin
+SELECT account.id, account.username,  account.apartment,
+community.address, debt.debt
+    FROM community LEFT JOIN admin
         ON admin.community_id = community.id
     INNER JOIN account
         ON account.community_id = community.id
-    LEFT JOIN booking
-        ON booking.account_id = account.id
-    LEFT JOIN invoice_booking
-        ON invoice_booking.booking_id = booking.id
-    LEFT JOIN invoice
-        ON invoice.id = invoice_booking.invoice_id
-    WHERE (admin.account_id = :user_id
-        OR account.id = :user_id)
-    AND (invoice.id IS NULL
-        OR invoice.paid IS FALSE)
-    AND (booking.id IS NULL
-        OR booking.start_dt <= :current_dt)
-    GROUP BY account.id
-    ORDER BY debt DESC, account.date_created DESC
+    LEFT JOIN
+        (SELECT booking.account_id, SUM(booking.price) AS debt
+            FROM booking
+            LEFT JOIN invoice_booking
+                ON invoice_booking.booking_id = booking.id
+            LEFT JOIN invoice
+                ON invoice.id = invoice_booking.invoice_id
+            WHERE booking.start_dt <= :current_dt
+            AND invoice.paid IS NOT :true
+            GROUP BY booking.account_id
+        ) AS debt
+        ON debt.account_id = account.id
+    WHERE admin.account_id = :user_id
+    OR account.id = :user_id
+    ORDER BY debt.debt DESC, account.date_created DESC
 ```
 
 The following textual SQL query can be found in [communities/models.py](https://github.com/nigoshh/hoax/blob/master/application/communities/models.py). It's used in [communities/views.py](https://github.com/nigoshh/hoax/blob/master/application/communities/views.py) to get a list of all queries, including some stats. The stats are the number of accounts which are members of a community, and the number of resources a community has access to; both are obtained using the aggregate function _COUNT_. The list's order is somehow arbitrary (meaning that it could very well be another one); it's logic is that an unregistered user is probably more interested in communities that have access to many resources.
@@ -116,7 +115,7 @@ SELECT * FROM community
     ORDER BY address
 ```
 
-The following textual SQL query can be found in [invoices/models.py](https://github.com/nigoshh/hoax/blob/master/application/invoices/models.py). It's used to make a list of all the unpaid invoices accessible by a user, depending on her user role. The second to last row can be omitted; in that case all invoices are displayed (also those that have already been paid).
+The following textual SQL query can be found in [invoices/models.py](https://github.com/nigoshh/hoax/blob/master/application/invoices/models.py). It's used to make a list of all the unpaid invoices accessible by a user, depending on her user role. The second to last row can be omitted; in that case all invoices are displayed (also those that have already been paid). Boolean _FALSE_ is given as a parameter to allow compatibility between SQLite and PostgreSQL.
 
 ```sql
 SELECT * FROM invoice
@@ -132,7 +131,7 @@ SELECT * FROM invoice
                             ON community.id = admin.community_id
                             WHERE admin.account_id = :user_id)
                     OR id = :user_id))
-    AND paid IS FALSE
+    AND paid IS :false
     ORDER BY date_created
 ```
 
