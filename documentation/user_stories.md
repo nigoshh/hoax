@@ -25,8 +25,9 @@
 The following aggregate query can be found in [accounts/models.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/models.py); it's used in [accounts/views.py](https://github.com/nigoshh/hoax/blob/master/application/accounts/views.py) in the function _account_list_ to make a list of accounts for the logged in admin. The list includes only the accounts that are from the communities administered by the logged in admin (plus the admin's own account); a similar logic is used in many other textual queries shown below. This is achieved using the [current_user](https://flask-login.readthedocs.io/en/latest/#flask_login.current_user)'s id (parameter :user_id in the query's [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement)). The aggregate function in the query is _SUM_, which calculates the total debt for each account. A booking's price is included into the debt only if the booking isn't in any invoice, or if the invoiced hasn't been paid yet; also, bookings which have not started yet (and thus could be canceled) are not included. Boolean _TRUE_ is given as a parameter to allow compatibility between SQLite and PostgreSQL (they have different data type representations for Boolean values). _IS NOT TRUE_ includes _NULL_ values resulting from the _LEFT JOIN_. The query's rows are ordered first by _debt_ (accounts with bigger debt first), and then by _account.date_created_, with the logic that if a newer account has already a big debt, it's probably a good idea to keep an eye on it.
 
 ```sql
-SELECT account.id, account.username,  account.apartment,
-community.address, debt.debt
+SELECT account.id, account.username,
+account.apartment, community.address,
+COALESCE(debt.debt, 0) AS account_debt
     FROM community LEFT JOIN admin
         ON admin.community_id = community.id
     INNER JOIN account
@@ -41,11 +42,11 @@ community.address, debt.debt
             WHERE booking.start_dt <= :current_dt
             AND invoice.paid IS NOT :true
             GROUP BY booking.account_id
-        ) AS debt
+        ) AS debt 
         ON debt.account_id = account.id
     WHERE admin.account_id = :user_id
     OR account.id = :user_id
-    ORDER BY debt.debt DESC, account.date_created DESC
+    ORDER BY account_debt DESC, account.date_created DESC
 ```
 
 The following textual SQL query can be found in [communities/models.py](https://github.com/nigoshh/hoax/blob/master/application/communities/models.py). It's used in [communities/views.py](https://github.com/nigoshh/hoax/blob/master/application/communities/views.py) to get a list of all queries, including some stats. The stats are the number of accounts which are members of a community, and the number of resources a community has access to; both are obtained using the aggregate function _COUNT_. The list's order is somehow arbitrary (meaning that it could very well be another one); it's logic is that an unregistered user is probably more interested in communities that have access to many resources.

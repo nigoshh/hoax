@@ -83,8 +83,9 @@ class Account(Base):
     def list_with_debt():
         if not current_user.is_authenticated:
             return []
-        stmt = text("SELECT account.id, account.username,  account.apartment, "
-                    "community.address, COALESCE(debt.debt, 0) "
+        stmt = text("SELECT account.id, account.username, "
+                    "account.apartment, community.address, "
+                    "COALESCE(debt.debt, 0) AS account_debt "
                     "FROM community LEFT JOIN admin "
                     "ON admin.community_id = community.id "
                     "INNER JOIN account "
@@ -103,7 +104,7 @@ class Account(Base):
                     "ON debt.account_id = account.id "
                     "WHERE admin.account_id = :user_id "
                     "OR account.id = :user_id "
-                    "ORDER BY debt.debt DESC, account.date_created DESC"
+                    "ORDER BY account_debt DESC, account.date_created DESC"
                     ).params(current_dt=datetime.now(), true=True,
                              user_id=current_user.get_id())
         res = db.engine.execute(stmt)
