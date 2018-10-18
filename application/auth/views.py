@@ -18,19 +18,18 @@ def is_safe_url(target):
 @app.route("/auth/login", methods=["GET", "POST"])
 def auth_login():
     next = request.args.get("next")
+    message = login_manager.login_message if next else None
 
     if request.method == "GET":
-        form = LoginForm()
-        if next:
-            return render_template("auth/loginform.html", form=form, next=next,
-                                   message=login_manager.login_message)
-        return render_template("auth/loginform.html", form=form)
+        return render_template("auth/loginform.html", form=LoginForm(),
+                               message=message, next=next)
 
     form = LoginForm(request.form)
 
     if not form.validate():
         clean_pw(form)
-        return render_template("auth/loginform.html", form=form)
+        return render_template("auth/loginform.html", form=form,
+                               message=message, next=next)
 
     a = Account.query.filter_by(username=form.username.data).first()
 
@@ -38,13 +37,15 @@ def auth_login():
         clean_pw(form)
         for field in [form.username, form.password]:
             field.errors.append("No such username or password.")
-        return render_template("auth/loginform.html", form=form)
+        return render_template("auth/loginform.html", form=form,
+                               message=message, next=next)
 
     pw_match = argon2.verify(form.password.data, a.pw_hash)
     clean_pw(form)
     if not pw_match:
         form.password.errors.append("Wrong password.")
-        return render_template("auth/loginform.html", form=form)
+        return render_template("auth/loginform.html", form=form,
+                               message=message, next=next)
 
     login_user(a)
 
