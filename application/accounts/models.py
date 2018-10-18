@@ -25,8 +25,8 @@ class Account(Base):
     apartment = db.Column(db.String(144), nullable=False)
     forename = db.Column(db.String(144), nullable=False)
     surname = db.Column(db.String(144), nullable=False)
-    email = db.Column(db.String(144))
-    phone = db.Column(db.String(144))
+    email = db.Column(db.String(144), nullable=False)
+    phone = db.Column(db.String(144), nullable=False)
     bookings = db.relationship("Booking", lazy=True,
                                backref=db.backref("account", lazy=False),
                                cascade="all, delete-orphan")
@@ -37,8 +37,8 @@ class Account(Base):
                                         "admins", lazy=True), lazy="subquery",
                                         secondary=admin)
 
-    def __init__(self, community_id, username, pw_hash,
-                 apartment, forename, surname, email, phone):
+    def __init__(self, community_id, username, pw_hash, apartment, forename,
+                 surname, email, phone, admin_communities):
         self.community_id = community_id
         self.username = username
         self.pw_hash = pw_hash
@@ -47,6 +47,7 @@ class Account(Base):
         self.surname = surname
         self.email = email
         self.phone = phone
+        self.admin_communities = admin_communities
 
     def get_id(self):
         return self.id

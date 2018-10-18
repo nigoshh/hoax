@@ -42,7 +42,7 @@ COALESCE(debt.debt, 0) AS account_debt
             WHERE booking.start_dt <= :current_dt
             AND invoice.paid IS NOT :true
             GROUP BY booking.account_id
-        ) AS debt 
+        ) AS debt
         ON debt.account_id = account.id
     WHERE admin.account_id = :user_id
     OR account.id = :user_id

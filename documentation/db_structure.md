@@ -11,8 +11,8 @@ Some column (other than the principal key) have been indexed to speed up the que
 ```sql
 CREATE TABLE community (
         id INTEGER NOT NULL,
-        date_created DATETIME,
-        date_modified DATETIME,
+        date_created DATETIME NOT NULL,
+        date_modified DATETIME NOT NULL,
         address VARCHAR(144) NOT NULL,
         PRIMARY KEY (id),
         UNIQUE (address)
@@ -20,8 +20,8 @@ CREATE TABLE community (
 
 CREATE TABLE invoice (
         id INTEGER NOT NULL,
-        date_created DATETIME,
-        date_modified DATETIME,
+        date_created DATETIME NOT NULL,
+        date_modified DATETIME NOT NULL,
         price NUMERIC NOT NULL CHECK (price >= 0),
         paid BOOLEAN NOT NULL,
         PRIMARY KEY (id),
@@ -32,16 +32,16 @@ CREATE INDEX ix_invoice_paid ON invoice (paid)
 
 CREATE TABLE account (
         id INTEGER NOT NULL,
-        date_created DATETIME,
-        date_modified DATETIME,
+        date_created DATETIME NOT NULL,
+        date_modified DATETIME NOT NULL,
         community_id INTEGER NOT NULL,
         username VARCHAR(144) NOT NULL,
         pw_hash VARCHAR(512) NOT NULL,
         apartment VARCHAR(144) NOT NULL,
         forename VARCHAR(144) NOT NULL,
         surname VARCHAR(144) NOT NULL,
-        email VARCHAR(144),
-        phone VARCHAR(144),
+        email VARCHAR(144) NOT NULL,
+        phone VARCHAR(144) NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY(community_id) REFERENCES community (id)
 )
@@ -62,8 +62,8 @@ CREATE INDEX ix_admin_account_id ON admin (account_id)
 
 CREATE TABLE resource (
         id INTEGER NOT NULL,
-        date_created DATETIME,
-        date_modified DATETIME,
+        date_created DATETIME NOT NULL,
+        date_modified DATETIME NOT NULL,
         account_id INTEGER NOT NULL,
         address VARCHAR(144) NOT NULL,
         type VARCHAR(144) NOT NULL,
@@ -90,8 +90,8 @@ CREATE INDEX ix_community_resource_community_id ON community_resource (community
 
 CREATE TABLE booking (
         id INTEGER NOT NULL,
-        date_created DATETIME,
-        date_modified DATETIME,
+        date_created DATETIME NOT NULL,
+        date_modified DATETIME NOT NULL,
         account_id INTEGER NOT NULL,
         resource_id INTEGER NOT NULL,
         start_dt DATETIME NOT NULL,

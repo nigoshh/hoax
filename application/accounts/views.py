@@ -34,7 +34,7 @@ def accounts_create():
 
     a = Account(form.community.data.id, form.username.data, pw_hash,
                 form.apartment.data, form.forename.data, form.surname.data,
-                form.email.data, form.phone.data)
+                form.email.data, form.phone.data, form.admin_communities.data)
 
     try:
         db.session().add(a)

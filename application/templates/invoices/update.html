@@ -7,16 +7,7 @@
 <form method="POST" action="{{ url_for('invoices_update', invoice_id=invoice.id) }}" novalidate>
   {{ form_row([(form.bookings, "")]) }}
   <div class="form-check">
-    {% if form.paid.errors %}
-      {{ form.paid(class_="form-check-input is-invalid") }}
-      <div class="invalid-feedback">
-        {% for e in form.paid.errors %}
-        <div>{{ e }}</div>
-        {% endfor %}
-      </div>
-    {% else %}
-      {{ form.paid(class_="form-check-input") }}
-    {% endif %}
+    {{ form.paid(class_="form-check-input") }}
     {{ form.paid.label }}
   </div>
   <div class="row">

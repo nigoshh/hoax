@@ -15,6 +15,13 @@ class InvoiceFormCreate(FlaskForm):
         csrf = False
 
 
+class InvoiceFormFilter(FlaskForm):
+    filter_unpaid = BooleanField("show only unpaid invoices")
+
+    class Meta:
+        csrf = False
+
+
 class InvoiceFormUpdate(FlaskForm):
     bookings = QuerySelectMultipleField("bookings", [rq()])
     paid = BooleanField("paid")

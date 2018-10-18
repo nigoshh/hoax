@@ -3,7 +3,8 @@ from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
 from sqlalchemy import exc
 from application.invoices.models import Invoice
-from application.invoices.forms import InvoiceFormCreate, InvoiceFormUpdate
+from application.invoices.forms import (InvoiceFormCreate, InvoiceFormFilter,
+                                        InvoiceFormUpdate)
 from application.bookings.models import Booking
 
 msg_unique = ("Some of the bookings you selected "
@@ -22,9 +23,9 @@ def invoices_form_create():
 @app.route("/invoices/", methods=["GET"])
 @login_required()
 def invoices_list():
-    filter_unpaid = False
-    return render_template("invoices/list.html",
-                           invoices=Invoice.get_allowed(filter_unpaid))
+    form = InvoiceFormFilter(request.args)
+    return render_template("invoices/list.html", form=form, invoices=Invoice
+                           .get_allowed(form.filter_unpaid.data))
 
 
 @app.route("/invoices/", methods=["POST"])
@@ -111,7 +112,6 @@ def invoices_update(invoice_id):
 
     if i.paid and form.paid.data:
         form.bookings.errors.append(msg_paid)
-        form.paid.errors.append(msg_paid)
         return render_template("invoices/update.html",
                                invoice=old_i, form=form)
 
