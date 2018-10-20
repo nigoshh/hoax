@@ -2,6 +2,8 @@ import copy
 from datetime import datetime as dt
 from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
+from flask_login import current_user
+from application.accounts.models import ADMIN
 from application.bookings.models import Booking
 from application.bookings.forms import (BookingFormCreate, BookingFormFilter,
                                         BookingFormUpdate)
@@ -12,6 +14,7 @@ def msg_free_rts_1(resource):
 
 
 msg_free_rts_2 = "Please check the bookings' list to find a free time slot."
+msg_past = "Booking starting date/time can't be in the past."
 msg_start = "Starting time must be before ending time."
 msg_end = "Ending time must be after starting time."
 msg_from = "\"From\" date/time must be before \"to\" date/time."
@@ -87,6 +90,11 @@ def bookings_create():
     start_dt = dt.combine(form.start_date.data, form.start_time.data)
     end_dt = dt.combine(form.end_date.data, form.end_time.data)
 
+    if start_dt < dt.now() and ADMIN not in current_user.roles():
+        form.start_date.errors.append(msg_past)
+        form.start_time.errors.append(msg_past)
+        return render_template("bookings/new.html", form=form)
+
     if start_dt >= end_dt:
         form.start_date.errors.append(msg_start)
         form.start_time.errors.append(msg_start)
@@ -130,7 +138,8 @@ def bookings_form_update(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
+    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+       or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 
     form = BookingFormUpdate()
@@ -151,7 +160,8 @@ def bookings_update(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
+    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+       or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 
     old_b = copy.deepcopy(b)
@@ -198,7 +208,8 @@ def bookings_delete_ask(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
+    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+       or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 
     return render_template("bookings/delete.html", booking=b)
@@ -212,7 +223,8 @@ def bookings_delete(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if b.id not in [b.id for b in Booking.get_allowed_by_account()]:
+    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+       or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 
     db.session.delete(b)
