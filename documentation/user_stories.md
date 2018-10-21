@@ -3,7 +3,7 @@
 - as a user, I can see lists of communities and resources
 - as a user, the list of communities I see includes stats about how many members are there in each community, and how many resources they have access to
 - as a user, I can see details about a community, including the specific resources its members have access to
-- as a user, I can see details about a resource, including the communities whose members are allowed access to that resource, and the resource's price
+- as a user, I can see details about a resource, including the communities whose members are allowed access to that resource, and the resource's price per hour
 
 - as a registered user, I can share a resource I own (or have access to) with one or many communities
 - as a registered user, I can book the resources that my community has access to, like saunas, laundry rooms, or whatever other users have decided to share (like a piano)
@@ -16,7 +16,7 @@
 - as an admin, I can see lists and details of accounts, bookings and invoices related to the communities I manage
 - as an admin, the list of accounts I can see includes each account's debt
 - as an admin, I can see details about each community I administer, including which accounts are its members and which accounts are its admins
-- as an admin, I can compose invoices for regular users
+- as an admin, I can make bookings and compose invoices on behalf of members (users) of the community I administer
 
 ## textual SQL queries
 
@@ -104,6 +104,30 @@ SELECT * FROM booking
     ORDER BY start_dt
 ```
 
+The following textual SQL query can be found in [bookings/models.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/models.py); it's used in _bookings_list_ in [bookings/views.py](https://github.com/nigoshh/hoax/blob/master/application/invoices/forms.py) to make a list of all the bookings accessible to a user, on the basis of what resources are available to her community (or to the communities she administers). Each of the four last conditions of the _WHERE_ clause can be included or excluded, depending on the query string's parameters (set by the [BookingFormFilter](https://github.com/nigoshh/hoax/blob/master/application/bookings/forms.py)).
+
+```sql
+SELECT * FROM booking
+    WHERE (resource_id IN
+        (SELECT DISTINCT community_resource.resource_id
+            FROM community_resource
+            INNER JOIN admin
+                ON admin.community_id = community_resource.community_id
+            WHERE admin.account_id = :user_id)
+    OR resource_id IN
+        (SELECT community_resource.resource_id
+          FROM community_resource
+          INNER JOIN account
+              ON account.community_id = community_resource.community_id
+          WHERE account.id = :user_id)))
+    AND end_dt > :from_dt
+    AND start_dt < :to_dt
+    AND resource_id IN (:resource_id_0, ..., :resource_id_n)
+    AND id NOT IN
+        (SELECT DISTINCT booking_id FROM invoice_booking)
+    ORDER BY start_dt
+```
+
 The following textual SQL query can be found in [communities/models.py](https://github.com/nigoshh/hoax/blob/master/application/communities/models.py). It's used in [communities/views.py](https://github.com/nigoshh/hoax/blob/master/application/communities/views.py) in many routes to authorize admin access to a community only if they administer that given community.
 
 ```sql
@@ -134,13 +158,6 @@ SELECT * FROM invoice
                     OR id = :user_id))
     AND paid IS :false
     ORDER BY date_created
-```
-
-The following textual SQL query can be found in [resources/models.py](https://github.com/nigoshh/hoax/blob/master/application/resources/models.py). It's a really basic query, but it was quicker to write it in plain SQL than it would have been to figure out how to write it with SQLAlchemy's [order_by](https://docs.sqlalchemy.org/en/latest/orm/query.html?highlight=order_by#sqlalchemy.orm.query.Query.order_by).
-
-```sql
-SELECT * FROM resource
-ORDER BY address, type, name
 ```
 
 The following textual SQL query can be found in [resources/models.py](https://github.com/nigoshh/hoax/blob/master/application/resources/models.py); it's used in the forms in [booking/forms.py](https://github.com/nigoshh/hoax/blob/master/application/bookings/forms.py) to make a list of all the resources that can be booked by the logged in user (_current_user_). The logic is that if the logged is user isn't an admin, she can only book resources that are accessible by the community she is part of; if she is an admin, she can also book resources that are accessible by all the communities that she administers.

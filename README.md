@@ -12,6 +12,8 @@
 
 [user guide](#user-guide)
 
+[shortcomings](#shortcomings)
+
 ## description
 
 The objective is to build a booking system for HOAX student housing's shared resources, like saunas, laundry rooms and common rooms. Each housing community has access to certain resources, which can be booked and used by all the members of the community (usually, the tenants living at the community's address). An admin can manage one or more housing communities. Regular users can share a resource with one or more communities, and they can book the resources to which their community has access. Each resource has a given price per hour. Only the tenant whose name is on the reservation has access to the resource at that given time; for this purpose she can enter her password at the door.
@@ -55,3 +57,13 @@ The app doesn't require additional configuration to be deployed on Heroku. Deplo
 ## user guide
 
 If nothing exists in the app, first you have to create a community. Then you can create an account (with admin privileges, if you want). Then you can log in, and create a resource. Then you can book that resource. Then you can create an invoice, that includes a user's bookings.
+
+Anonymous users, logged in users and admins all have different privileges. Most of these privileges have been designed realistically, but some have been kept less restrictive to allow for easier testing of the app (for example, everyone can create a community, and a regular user can choose to become an admin).
+
+## shortcomings
+
+- time zone support (now all times are in UTC)
+- pagination for all lists (now there's pagination only for resources list)
+- better filtering and keyword search for all lists
+- links in lists (details, edit, delete) could be displayed only if the user has the necessary credentials to access them
+- bookings list with account's own bookings (now if admin made a booking on behalf of a normal user for a resource she couldn't otherwise access, she doesn't see this booking in the bookings list)
