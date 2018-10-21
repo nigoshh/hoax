@@ -90,7 +90,7 @@ def bookings_create():
     start_dt = dt.combine(form.start_date.data, form.start_time.data)
     end_dt = dt.combine(form.end_date.data, form.end_time.data)
 
-    if start_dt < dt.now() and ADMIN not in current_user.roles():
+    if start_dt < dt.utcnow() and ADMIN not in current_user.roles():
         form.start_date.errors.append(msg_past)
         form.start_time.errors.append(msg_past)
         return render_template("bookings/new.html", form=form)
@@ -138,7 +138,7 @@ def bookings_form_update(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+    if ((b.start_dt <= dt.utcnow() and ADMIN not in current_user.roles())
        or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 
@@ -160,7 +160,7 @@ def bookings_update(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+    if ((b.start_dt <= dt.utcnow() and ADMIN not in current_user.roles())
        or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 
@@ -176,6 +176,12 @@ def bookings_update(booking_id):
 
     b.start_dt = dt.combine(form.start_date.data, form.start_time.data)
     b.end_dt = dt.combine(form.end_date.data, form.end_time.data)
+
+    if b.start_dt < dt.utcnow() and ADMIN not in current_user.roles():
+        form.start_date.errors.append(msg_past)
+        form.start_time.errors.append(msg_past)
+        return render_template("bookings/update.html",
+                               booking=old_b, form=form)
 
     if b.start_dt >= b.end_dt:
         for field in [form.start_date, form.start_time]:
@@ -208,7 +214,7 @@ def bookings_delete_ask(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+    if ((b.start_dt <= dt.utcnow() and ADMIN not in current_user.roles())
        or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 
@@ -223,7 +229,7 @@ def bookings_delete(booking_id):
     if not b:
         return render_template("404.html", res_type="booking"), 404
 
-    if ((b.start_dt <= dt.now() and ADMIN not in current_user.roles())
+    if ((b.start_dt <= dt.utcnow() and ADMIN not in current_user.roles())
        or b.id not in [b.id for b in Booking.get_allowed_by_account()]):
         return login_manager.unauthorized()
 

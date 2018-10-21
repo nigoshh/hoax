@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime as dt
 from flask_login import current_user
 from sqlalchemy.sql import text
 from application import db
@@ -106,7 +106,7 @@ class Account(Base):
                     "WHERE admin.account_id = :user_id "
                     "OR account.id = :user_id "
                     "ORDER BY account_debt DESC, account.date_created DESC"
-                    ).params(current_dt=datetime.now(), true=True,
+                    ).params(current_dt=dt.utcnow(), true=True,
                              user_id=current_user.get_id())
         res = db.engine.execute(stmt)
 

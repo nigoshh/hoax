@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime as dt
 from decimal import Decimal, ROUND_DOWN
 from flask_login import current_user
 from sqlalchemy import CheckConstraint, text
@@ -9,10 +9,10 @@ from application.utils.utils import PRICE
 
 
 # to avoid strange type errors with str / datetime
-def check_type_dt(dt):
-    if type(dt) is str:
-        return datetime.fromisoformat(dt)
-    return dt
+def check_type_dt(datetime):
+    if type(datetime) is str:
+        return dt.fromisoformat(datetime)
+    return datetime
 
 
 class Booking(Base):
