@@ -1,6 +1,7 @@
 from decimal import ROUND_DOWN
 from flask_wtf import FlaskForm
-from wtforms import DecimalField, StringField, SubmitField, validators
+from wtforms import (DecimalField, SelectField, StringField, SubmitField,
+                     validators)
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from application.communities.models import Community
 
@@ -20,6 +21,16 @@ class ResourceFormCreate(FlaskForm):
     communities = QuerySelectMultipleField("allowed communities",
                                            query_factory=Community.get_all)
     submit = SubmitField("create resource")
+
+    class Meta:
+        csrf = False
+
+
+class ResourceFormFilter(FlaskForm):
+    column = SelectField(
+        "filter by", default="type",
+        choices=[(s, s) for s in ["address", "type", "name", "price"]])
+    keyword = StringField("keyword", [ln(max=256)])
 
     class Meta:
         csrf = False
