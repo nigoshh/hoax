@@ -8,5 +8,6 @@ class Base(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, default=dt.utcnow, nullable=False)
-    date_modified = db.Column(db.DateTime, default=dt.utcnow, onupdate=dt.utcnow,
+    date_modified = db.Column(db.DateTime, default=dt.utcnow,
+                              onupdate=dt.utcnow,
                               nullable=False)

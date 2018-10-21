@@ -4,6 +4,7 @@ from application import app, db, login_manager, login_required
 from flask import redirect, render_template, request, url_for
 from flask_login import current_user
 from sqlalchemy import exc
+from werkzeug.urls import url_encode
 from application.resources.models import Resource
 from application.resources.forms import ResourceFormCreate, ResourceFormUpdate
 
@@ -26,8 +27,23 @@ def resources_form_create():
 
 @app.route("/resources/", methods=["GET"])
 def resources_list():
-    resources = Resource.get_all()
-    return render_template("resources/list.html", resources=resources)
+    page = request.args.get("page", 1, type=int)
+    qs_params = request.args.copy()
+    qs_params.pop("page", None)
+    url_for_pagination = ("%s?%s" % (url_for("resources_list"),
+                                     url_encode(qs_params)))
+    if len(qs_params) > 0:
+        url_for_pagination += "&"
+    url_for_pagination += "page="
+
+    resources = (
+        Resource.query.order_by(Resource.address, Resource.type, Resource.name)
+                      .paginate(page, app.config["ITEMS_PER_PAGE"], False))
+
+    return render_template(
+        "resources/list.html", resources=resources.items,
+        qs_params=qs_params, pagination=resources,
+        url_for_pagination=url_for_pagination)
 
 
 @app.route("/resources/", methods=["POST"])

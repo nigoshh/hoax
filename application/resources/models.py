@@ -40,12 +40,6 @@ class Resource(Base):
         return PRICE % self.price
 
     @staticmethod
-    def get_all():
-        stmt = text("SELECT * FROM resource "
-                    "ORDER BY address, type, name")
-        return db.session.query(Resource).from_statement(stmt).all()
-
-    @staticmethod
     def get_allowed():
         if not current_user.is_authenticated:
             return []
